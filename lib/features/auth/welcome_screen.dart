@@ -24,15 +24,20 @@ class WelcomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(),
-            const Text(
+            Text(
               'Save Lives',
-              style: AppTextStyles.heading,
+              style: AppTextStyles.heroTitle.copyWith(
+                fontSize: 36,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Donate Blood, Share Love',
-              style: AppTextStyles.subheading,
+              style: AppTextStyles.heroSubtitle.copyWith(
+                fontSize: 18,
+                fontWeight: FontWeight.w700
+              ),
               textAlign: TextAlign.center,
             ),
             const Spacer(),

@@ -5,13 +5,13 @@ class AppTextStyles {
   static const TextStyle heading = TextStyle(
     fontSize: 36,
     fontWeight: FontWeight.bold,
-    color: Color.fromARGB(255, 255, 255, 255),
+    color: Color.fromARGB(255, 37, 37, 37),
   );
 
   static const TextStyle subheading = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.w600,
-    color: Color.fromARGB(255, 255, 255, 255),
+    color: Color.fromARGB(255, 37, 37, 37),
   );
 
   static const TextStyle body = TextStyle(

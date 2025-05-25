@@ -15,6 +15,18 @@ class HeroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0), // Right margin
+                child: CircleAvatar(
+                  backgroundColor: Colors.grey.shade400,
+                  child: IconButton(
+                    icon: Icon(Icons.notifications, color: AppColors.primaryRed), 
+                    onPressed: () {  },
+                  ),  
+                ),  
+              ),
+            ],
             expandedHeight: 150,
             floating: false,
             pinned: true,

@@ -5,15 +5,23 @@ import '../../core/widgets/custom_button.dart';
 import '../../core/widgets/hero_section.dart';
 // import '../../app/theme/app_text_styles.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+    final _formKey = GlobalKey<FormState>();
+    final _nameController = TextEditingController();
+    final _emailController = TextEditingController();
+    final _passwordController = TextEditingController();
+    final _locationController = TextEditingController();
+  @override
   Widget build(BuildContext context) {
-    final nameController = TextEditingController();
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-    final locationController = TextEditingController();
+  
+
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -29,12 +37,13 @@ class RegisterScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Form(
+                      key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(height: 20,),
                           _buildTextFormField(
-                            controller: nameController, 
+                            controller: _nameController, 
                             label: "name", 
                             icon: Icons.person,
                             validator: (value) {
@@ -46,7 +55,7 @@ class RegisterScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 20,),
                           _buildTextFormField(
-                            controller: emailController, 
+                            controller: _emailController, 
                             label: "email", 
                             icon: Icons.email,
                             validator: (value) {
@@ -58,7 +67,7 @@ class RegisterScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 20,),
                           _buildTextFormField(
-                            controller: passwordController, 
+                            controller: _passwordController, 
                             label: "password", 
                             icon: Icons.lock,
                             suffixIcon: Icons.visibility,
@@ -71,7 +80,7 @@ class RegisterScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 20),
                           _buildTextFormField(
-                            controller: locationController, 
+                            controller: _locationController, 
                             label: "location", 
                             icon: Icons.location_on,
                             suffixIcon: Icons.my_location,
@@ -86,14 +95,18 @@ class RegisterScreen extends StatelessWidget {
                           CustomButton(
                             label: 'Register',
                             onPressed: () {
-                              Navigator.pushNamed(context, '/login'); // Navigate to Login after registration
+                              if (_formKey.currentState!.validate()) {
+                                // Perform registration action
+                                Navigator.pushNamed(context, '/login'); // Navigate to Login after registration
+                              }
                             },
                           ),
 
                           SizedBox(height: 20,),
                           TextButton(
                             onPressed: () {
-                              Navigator.pushNamed(context, '/login'); // Navigate to Login after registration
+                              
+                                Navigator.pushNamed(context, '/login'); // Navigate to Login after registration
                             }, 
                             child: Text(
                               'Don\'t have an account? Sign in',

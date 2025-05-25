@@ -5,14 +5,20 @@ import '../../core/widgets/custom_button.dart';
 import '../../core/widgets/hero_section.dart';
 // import '../../app/theme/app_text_styles.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
+  State<LoginScreen> createState() => _LoginScreenState();
+}
 
+class _LoginScreenState extends State<LoginScreen> {
+    final _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
@@ -27,13 +33,14 @@ class LoginScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Form(
+                      key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           
                           SizedBox(height: 20,),
                           _buildTextFormField(
-                            controller: emailController, 
+                            controller: _emailController, 
                             label: "email", 
                             icon: Icons.email,
                             validator: (value) {
@@ -45,7 +52,7 @@ class LoginScreen extends StatelessWidget {
                           ),
                           SizedBox(height: 20,),
                           _buildTextFormField(
-                            controller: passwordController, 
+                            controller: _passwordController, 
                             label: "password", 
                             icon: Icons.lock,
                             suffixIcon: Icons.visibility,
@@ -61,7 +68,10 @@ class LoginScreen extends StatelessWidget {
                           CustomButton(
                             label: 'Login',
                             onPressed: () {
-                              Navigator.pushNamed(context, '/home'); // Navigate to Login after registration
+                              if (_formKey.currentState!.validate()) {
+                                // Perform login action
+                                Navigator.pushNamed(context, '/home'); // Navigate to Home after login
+                              }
                             },
                           ),
 
