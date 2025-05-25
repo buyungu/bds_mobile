@@ -1,7 +1,6 @@
 import 'package:bds/app/theme/app_colors.dart';
 import 'package:bds/app/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
-import '../../core/widgets/custom_button.dart';
 import '../../core/widgets/hero_section.dart';
 // import '../../app/theme/app_text_styles.dart';
 
@@ -14,8 +13,6 @@ class FindDonors extends StatefulWidget {
 
 class _FindDonorsState extends State<FindDonors> {
   String? selectedBloodGroup;
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _locationController = TextEditingController();
 
   final List<Map<String, dynamic>> donors = [
     {
@@ -24,7 +21,7 @@ class _FindDonorsState extends State<FindDonors> {
       'availability': true,
       'location': 'New York',
       'lastDonationDate': '2023-10-01',
-      'email': 'johndoe@gmail.com'
+    'contact': '+255 712 345 678' // replaced email with Tanzanian phone number
     },
     {
       'name': 'Jane Smith',
@@ -32,7 +29,7 @@ class _FindDonorsState extends State<FindDonors> {
       'availability': false,
       'location': 'Los Angeles',
       'lastDonationDate': '2023-09-15',
-      'email': 'jane@gmail.com'
+    'contact': '+255 713 456 789'
     },
     {
       'name': 'Alice Johnson',
@@ -40,7 +37,7 @@ class _FindDonorsState extends State<FindDonors> {
       'availability': true,
       'location': 'Chicago',
       'lastDonationDate': '2023-08-20',
-      'email': 'alice@gmail.com'
+    'contact': '+255 714 567 890'
     },
     {
       'name': 'Bob Brown',
@@ -48,7 +45,7 @@ class _FindDonorsState extends State<FindDonors> {
       'availability': true,
       'location': 'Houston',
       'lastDonationDate': '2023-07-10',
-      'email': 'bob@gmail.com'
+    'contact': '+255 715 678 901'
     },
   ];
 
@@ -62,11 +59,19 @@ class _FindDonorsState extends State<FindDonors> {
     'O+',
     'O-',
   ];
+
+  String? selectedLocation;
+  final List<String> locations = [
+    'New York',
+    'Los Angeles',
+    'Chicago',
+    'Houston',
+  ];
+
   List<Map<String, dynamic>> get filteredDonors {
     return donors.where((donor) {
       final matchesBloodType = selectedBloodGroup == null || donor['bloodType'] == selectedBloodGroup;
-      final matchesLocation = _locationController.text.isEmpty ||
-          (donor['location'] as String).toLowerCase().contains(_locationController.text.toLowerCase());
+      final matchesLocation = selectedLocation == null || donor['location'] == selectedLocation;
       return matchesBloodType && matchesLocation;
     }).toList();
   }
@@ -121,34 +126,37 @@ class _FindDonorsState extends State<FindDonors> {
                         }).toList(),
                       ),
                     ),
-                   
-                    SizedBox(height: 20),
-                    Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          
-                          SizedBox(height: 20),
-                          _buildTextFormField(
-                            controller: _locationController,
-                            label: "location",
-                            
-                            icon: Icons.location_on,
-                            suffixIcon: Icons.my_location,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your location';
-                              }
-                              return null;
-                            },
-                          ),
-                                 
-                        ],
-                      ),
-                    ),
+                                       
                     SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: selectedLocation,
+                      decoration: InputDecoration(
+                        labelText: 'Select Location',
+                        prefixIcon: Icon(Icons.location_on,
+                          color: AppColors.primaryRed,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: AppColors.primaryRed)
+                        ),
+                      ),
+                      items: locations.map((location) {
+                        return DropdownMenuItem(
+                          value: location,
+                          child: Text(location),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedLocation = value;
+                        });
+                      },
+                    ),
 
+                    SizedBox(height: 16),
                     filteredDonors.isEmpty
                         ? Center(
                             child: Column( 
@@ -194,64 +202,17 @@ class _FindDonorsState extends State<FindDonors> {
           ),
         ],
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: CustomButton(
-          label: 'Submit Request',
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              // Handle form submission
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Donation request submitted successfully!')),
-              );
-            }
-          },
-        ),
-      ),
     );
   }
 }
 
-Widget _buildTextFormField({
-  required TextEditingController controller,
-  required String label,
-  required IconData icon,
-  IconData? suffixIcon,
-  int maxLines = 1,
-  String? Function(String?)? validator,
-}) {
-  return TextFormField(
-    controller: controller,
-    maxLines: maxLines,
-    decoration: InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon, color: AppColors.primaryRed,),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide:BorderSide(color: Colors.grey.shade400)
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.primaryRed)
-      ),
-      suffixIcon: 
-        suffixIcon != null
-          ? IconButton(
-              onPressed: () {
-                // Some codes
-              },
-              icon: Icon(suffixIcon, color: AppColors.primaryRed),
-            )
-          : null,
-    ),
-    validator: validator,
-  );
-}
+ 
 
 extension _FindDonorsStateDonorCard on _FindDonorsState {
   Widget _buildDonorCard(Map<String, dynamic> donor) {
     return Card(
       elevation: 4,
+      color: Colors.white, 
       margin: EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -268,13 +229,7 @@ extension _FindDonorsStateDonorCard on _FindDonorsState {
                   donor['name'] ?? 'Unknown',
                   style: AppTextStyles.subheading.copyWith(fontSize: 18),
                 ),
-                Text(
-                  donor['bloodType'] ?? 'N/A',
-                  style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primaryRed,
-                  ),
-                ),
+               
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
@@ -292,9 +247,125 @@ extension _FindDonorsStateDonorCard on _FindDonorsState {
                   ),
                 ),
               ],
+            ),
+            SizedBox(height: 12),
+            Row(
+              children: [
+                _buildInfoChip(
+                  icon: Icons.location_on,
+                  text: donor['bloodType'] ?? 'Unknown',
+                ),
+                _buildInfoChip(
+                  icon: Icons.location_on,
+                  text: donor['location'] ?? 'Unknown',
+                ),
+              ],
+            ),
+            SizedBox(height: 12),
+            Text(
+              'Last Donation: ${donor['lastDonationDate'] ?? 'N/A'}',
+              style: AppTextStyles.body.copyWith(
+                color: Colors.grey[600],
+              ),
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: donor['availability'] ? (){
+                      showDialog(
+                        context: context, 
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.white,
+                            title: Text('Contact Donor',
+                              style: AppTextStyles.subheading,
+                            ),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Contact Number: ',
+                                style: AppTextStyles.bodyBold,
+                                ),
+                                SizedBox(height: 8,),
+                                Text(
+                                  donor['contact'],
+                                  style: AppTextStyles.body.copyWith(
+                                    color: AppColors.primaryRed
+                                  ),
+                                ),
+                                SizedBox(height: 16,),
+                                Text(
+                                  'Do you want to call this donor?',
+                                  style: AppTextStyles.body,
+                                )
+                              ],
+                            ),
+                            // Text('Call ${donor['name']} at ${donor['contact']}?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                }, 
+                                child: Text('Cancel'),
+                              ),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryRed,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                }, 
+                                child: Text('Call'),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  textStyle: AppTextStyles.action,
+                                ),
+                              ),
+                              ),
+                            ],
+                          );
+                        });
+                    } : null,
+                     child: Text('Contact Donor'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryRed,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:BorderRadius.circular(12),
+                        ),
+                      ),
+                     ),
+                )
+              ],
             )
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInfoChip({required IconData icon, required String text}) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.primaryRed, size: 16),
+          SizedBox(width: 4),
+          Text(
+            text,
+            style: AppTextStyles.body,
+          ),
+        ],
       ),
     );
   }
