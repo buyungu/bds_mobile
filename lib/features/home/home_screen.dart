@@ -64,7 +64,10 @@ class HomeScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () {}, 
+                      onPressed: () {
+                        
+                          Navigator.pushNamed(context, '/respond'); 
+                      }, 
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryRed,
                         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -129,7 +132,9 @@ class HomeScreen extends StatelessWidget {
                         label: "My Requests", 
                         color: Colors.pink, 
                         icon: Icons.warning,
-                        onTap: () {}
+                        onTap: () {
+                          Navigator.pushNamed(context, '/my-requests');
+                        }
                         
                       ),
                       _buildQuickActionCard(
@@ -137,7 +142,9 @@ class HomeScreen extends StatelessWidget {
                         label: "Centers", 
                         color: Colors.purple, 
                         icon: Icons.location_on, 
-                        onTap: () {}
+                        onTap: () {
+                          Navigator.pushNamed(context, '/centers');
+                        }
                         
                       ),
                     ],

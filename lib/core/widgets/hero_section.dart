@@ -22,7 +22,9 @@ class HeroSection extends StatelessWidget {
                   backgroundColor: Colors.grey.shade400,
                   child: IconButton(
                     icon: Icon(Icons.notifications, color: AppColors.primaryRed), 
-                    onPressed: () {  },
+                    onPressed: () { 
+                      Navigator.pushNamed(context, '/notifications');
+                    },
                   ),  
                 ),  
               ),

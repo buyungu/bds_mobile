@@ -1,70 +1,100 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:bds/app/theme/app_colors.dart';
+import 'package:bds/app/theme/app_text_styles.dart';
 import '../../core/widgets/hero_section.dart';
-import '../../core/widgets/loading_indicator.dart';
-import '../../data/mock/mock_data.dart';
-import '../../data/models/donation_model.dart';
-import '../../app/theme/app_text_styles.dart';
-import '../../app/theme/app_colors.dart';
 
 class DonationHistoryScreen extends StatelessWidget {
   const DonationHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<Donation> donations = MockData.donations;
+    final List<Map<String, dynamic>> donationHistory = [
+      {
+        'center': 'City Hospital',
+        'date': 'May 10, 2025',
+        'status': 'Completed',
+      },
+      {
+        'center': 'Red Cross Clinic',
+        'date': 'March 20, 2025',
+        'status': 'Completed',
+      },
+      {
+        'center': 'Hope Medical Center',
+        'date': 'Upcoming: June 15, 2025',
+        'status': 'Scheduled',
+      },
+    ];
 
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const HeroSection(
-                title: 'Donation History',
-                subtitle: 'Track your past donations',
-              ),
-              const SizedBox(height: 24),
-              if (donations.isEmpty)
-                const LoadingIndicator()
-              else
-                ...donations.map((donation) => _buildDonationCard(donation)),
-            ],
+      backgroundColor: Colors.white,
+      body: CustomScrollView(
+        slivers: [
+          const HeroSection(
+            title: 'Donation History',
+            subtitle: 'Track your past and upcoming donations',
           ),
-        ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _buildHistoryCard(donationHistory[index]),
+                childCount: donationHistory.length,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildDonationCard(Donation donation) {
-    final String formattedDate = DateFormat.yMMMd().format(donation.donatedAt);
-    final request = donation.request;
+  Widget _buildHistoryCard(Map<String, dynamic> donation) {
+    final isUpcoming = donation['status'] == 'Scheduled';
 
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Date: $formattedDate', style: AppTextStyles.subheading),
-            const SizedBox(height: 6),
-            Text('Hospital: ${request.hospital}', style: AppTextStyles.body),
-            Text('Blood Type: ${request.requester.bloodType}', style: AppTextStyles.body),
-            Text('Quantity: ${request.quantity} pint(s)', style: AppTextStyles.body),
-            const SizedBox(height: 6),
-            Text(
-              'Status: ${request.status}',
-              style: AppTextStyles.body.copyWith(
-                color: request.status == 'Fulfilled' ? AppColors.primaryRed : AppColors.black,
-                fontWeight: FontWeight.bold,
-              ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isUpcoming ? Colors.blue.shade50 : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isUpcoming ? Icons.event : Icons.check_circle,
+            color: isUpcoming ? Colors.blue : Colors.green,
+            size: 30,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(donation['center'], style: AppTextStyles.bodyBold),
+                const SizedBox(height: 4),
+                Text(donation['date'], style: AppTextStyles.body),
+              ],
             ),
-          ],
-        ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: isUpcoming ? Colors.blue : Colors.green,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              donation['status'],
+              style: AppTextStyles.whiteBody.copyWith(fontSize: 12),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,9 +1,9 @@
+import 'package:bds/app/theme/app_colors.dart';
+import 'package:bds/app/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import '../../core/widgets/custom_button.dart';
-import '../../core/widgets/blood_type_chip.dart';
 import '../../core/widgets/hero_section.dart';
-import '../../app/theme/app_colors.dart';
-import '../../app/theme/app_text_styles.dart';
+// import '../../app/theme/app_text_styles.dart';
 
 class CreateRequestScreen extends StatefulWidget {
   const CreateRequestScreen({super.key});
@@ -13,105 +13,193 @@ class CreateRequestScreen extends StatefulWidget {
 }
 
 class _CreateRequestScreenState extends State<CreateRequestScreen> {
-  final _hospitalController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _noteController = TextEditingController();
-  final _quantityController = TextEditingController();
+  String? selectedBloodGroup;
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _hospitalController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _notesController = TextEditingController();
 
-  String selectedBloodType = 'A+';
-  String selectedUrgency = 'Normal';
-
-  final List<String> bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-  final List<String> urgencyLevels = ['Normal', 'High', 'Critical'];
-
+  final List<String> bloodTypes = [
+    'A+',
+    'A-',
+    'B+',
+    'B-',
+    'AB+',
+    'AB-',
+    'O+',
+    'O-',
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const HeroSection(
-                title: 'Request Blood',
-                subtitle: 'Submit a new blood request',
-              ),
-              const SizedBox(height: 24),
+      backgroundColor: Colors.white,
+      body: CustomScrollView(
+        slivers: [
+          const HeroSection(title: 'Request Blood Donation ', subtitle: 'Ask for blood Dontions'),
 
-              const Text('Select Blood Type', style: AppTextStyles.subheading),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: bloodTypes.map((type) {
-                  return BloodTypeChip(
-                    type: type,
-                    isSelected: selectedBloodType == type,
-                    onTap: () => setState(() => selectedBloodType = type),
-                  );
-                }).toList(),
-              ),
-
-              const SizedBox(height: 24),
-              const Text('Urgency', style: AppTextStyles.subheading),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 10,
-                children: urgencyLevels.map((level) {
-                  final isSelected = selectedUrgency == level;
-                  return ChoiceChip(
-                    label: Text(level),
-                    selected: isSelected,
-                    onSelected: (_) => setState(() => selectedUrgency = level),
-                    selectedColor: AppColors.primaryRed,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : AppColors.black,
-                      fontWeight: FontWeight.bold,
+          SliverPadding(
+            padding: EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Select blood type you need",
+                      style: AppTextStyles.subheading,
                     ),
-                  );
-                }).toList(),
-              ),
-
-              const SizedBox(height: 24),
-              _buildTextField(controller: _hospitalController, hint: 'Hospital Name'),
-              const SizedBox(height: 16),
-              _buildTextField(controller: _locationController, hint: 'Location'),
-              const SizedBox(height: 16),
-              _buildTextField(controller: _quantityController, hint: 'Quantity (in pints)', keyboardType: TextInputType.number),
-              const SizedBox(height: 16),
-              _buildTextField(controller: _noteController, hint: 'Additional Notes (optional)', maxLines: 4),
-
-              const SizedBox(height: 24),
-              CustomButton(
-                label: 'Submit Request',
-                onPressed: () {
-                  // TODO: Handle submission logic
-                },
-              )
-            ],
+                    SizedBox(height: 16,),
+                    GridView.builder(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        childAspectRatio: 1,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                      ),
+                      itemCount: bloodTypes.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedBloodGroup = bloodTypes[index];
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: Duration(milliseconds: 300),
+                            decoration: BoxDecoration(
+                              color: selectedBloodGroup == bloodTypes[index]
+                                  ? AppColors.primaryRed
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: selectedBloodGroup == bloodTypes[index]
+                                    ? AppColors.primaryRed
+                                    : Colors.grey.shade400,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                bloodTypes[index],
+                                style: AppTextStyles.body.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: selectedBloodGroup == bloodTypes[index]
+                                      ? Colors.white
+                                      : AppColors.textDark,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    SizedBox(height: 20),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(height: 20,),
+                          _buildTextFormField(
+                            controller: _hospitalController,
+                            label: "Hospital Name",
+                            icon: Icons.local_hospital,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter the hospital name';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 20),
+                          _buildTextFormField(
+                            controller: _locationController,
+                            label: "location",
+                            icon: Icons.location_on,
+                            suffixIcon: Icons.my_location,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your location';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: 20,),
+                          _buildTextFormField(
+                            controller: _notesController,
+                            label: "Notes",
+                            icon: Icons.note,
+                            maxLines: 3,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter any additional notes';
+                              }
+                              return null;
+                            },
+                          ),                          
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ]),
+            ),
           ),
-        ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    int maxLines = 1,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        hintText: hint,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: CustomButton(
+          label: 'Submit Request',
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              // Handle form submission
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Donation request submitted successfully!')),
+              );
+            }
+          },
         ),
       ),
     );
   }
 }
+
+Widget _buildTextFormField({
+  required TextEditingController controller,
+  required String label,
+  required IconData icon,
+  IconData? suffixIcon,
+  int maxLines = 1,
+  String? Function(String?)? validator,
+}) {
+  return TextFormField(
+    controller: controller,
+    maxLines: maxLines,
+    decoration: InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: AppColors.primaryRed,),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide:BorderSide(color: Colors.grey.shade400)
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: AppColors.primaryRed)
+      ),
+      suffixIcon: 
+        suffixIcon != null
+          ? IconButton(
+              onPressed: () {
+                // Some codes
+              }, 
+              icon: Icon(suffixIcon, color: AppColors.primaryRed)
+            )
+          : null,
+    ),
+    validator: validator,
+  );
+}
+

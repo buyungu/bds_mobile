@@ -4,7 +4,10 @@ import 'package:bds/features/auth/welcome_screen.dart';
 import 'package:bds/features/donor/all_requests_screen.dart';
 import 'package:bds/features/donor/donation_history_screen.dart';
 import 'package:bds/features/donor/donate_screen.dart';
+import 'package:bds/features/donor/respond_to_request_screen.dart';
+import 'package:bds/features/home/donation_centers.dart';
 import 'package:bds/features/home/home_screen.dart';
+import 'package:bds/features/home/notifications.dart';
 import 'package:bds/features/profile/profile_screen.dart';
 import 'package:bds/features/recipient/create_request_screen.dart';
 import 'package:bds/features/recipient/find_donors.dart';
@@ -41,6 +44,10 @@ class BloodDonationApp extends StatelessWidget {
         '/donation-history': (context) => const DonationHistoryScreen(),
         '/donate': (context) => const DonateScreen(),
         '/find': (context) => const FindDonors(),
+        '/centers': (context) => const DonationCentersScreen(),
+        '/notifications': (context) => const NotificationsScreen(),
+        '/respond': (context) => const RespondToRequestScreen(),
+
       },
     );
   }
