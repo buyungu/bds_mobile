@@ -109,7 +109,9 @@ class HomeScreen extends StatelessWidget {
                         label: "Find Donors", 
                         color: Colors.blue, 
                         icon: Icons.local_hospital, 
-                        onTap: () {}
+                        onTap: () {
+                          Navigator.pushNamed(context, '/find'); 
+                        }
                         
                       ),
                       _buildQuickActionCard(
@@ -117,7 +119,9 @@ class HomeScreen extends StatelessWidget {
                         label: "Book Request", 
                         color: Colors.green, 
                         icon: Icons.bloodtype, 
-                        onTap: () {}
+                        onTap: () {
+                          Navigator.pushNamed(context, '/create-request'); // Navigate to Create Request
+                        }
                         
                       ),
                       _buildQuickActionCard(

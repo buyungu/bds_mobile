@@ -7,6 +7,7 @@ import 'package:bds/features/donor/donate_screen.dart';
 import 'package:bds/features/home/home_screen.dart';
 import 'package:bds/features/profile/profile_screen.dart';
 import 'package:bds/features/recipient/create_request_screen.dart';
+import 'package:bds/features/recipient/find_donors.dart';
 import 'package:bds/features/recipient/my_requests_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -39,6 +40,7 @@ class BloodDonationApp extends StatelessWidget {
         '/view-requests': (context) => const AllRequestsScreen(),
         '/donation-history': (context) => const DonationHistoryScreen(),
         '/donate': (context) => const DonateScreen(),
+        '/find': (context) => const FindDonors(),
       },
     );
   }
