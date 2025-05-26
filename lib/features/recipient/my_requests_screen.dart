@@ -41,7 +41,7 @@ class MyRequestsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildRequestCard(requests[index]),
+                (context, index) => _buildRequestCard(context, requests[index]),
                 childCount: requests.length,
               ),
             ),
@@ -50,65 +50,85 @@ class MyRequestsScreen extends StatelessWidget {
       ),
     );
   }
+  }
 
-  Widget _buildRequestCard(Map<String, dynamic> request) {
-    Color statusColor;
-    switch (request['status']) {
-      case 'Approved':
-        statusColor = Colors.orange;
-        break;
-      case 'Fulfilled':
-        statusColor = Colors.green;
-        break;
-      default:
-        statusColor = Colors.red;
-    }
+  Widget _buildRequestCard(BuildContext context, Map<String, dynamic> request) {
+  Color statusColor;
+  switch (request['status']) {
+    case 'Approved':
+      statusColor = Colors.orange;
+      break;
+    case 'Fulfilled':
+      statusColor = Colors.green;
+      break;
+    default:
+      statusColor = Colors.red;
+  }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            request['hospital'],
-            style: AppTextStyles.bodyBold,
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black12,
+          blurRadius: 8,
+          offset: Offset(0, 4),
+        )
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          request['hospital'],
+          style: AppTextStyles.bodyBold,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Blood Type: ${request['bloodType']}',
+          style: AppTextStyles.body,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Requested on ${request['date']}',
+          style: AppTextStyles.body.copyWith(color: Colors.grey.shade600),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: statusColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Blood Type: ${request['bloodType']}',
-            style: AppTextStyles.body,
+          child: Text(
+            request['status'],
+            style: AppTextStyles.bodyBold.copyWith(color: statusColor),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Requested on ${request['date']}',
-            style: AppTextStyles.body.copyWith(color: Colors.grey.shade600),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/donation-progress', arguments: request);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryRed,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 12),
             ),
             child: Text(
-              request['status'],
-              style: AppTextStyles.bodyBold.copyWith(color: statusColor),
+              'View Progress',
+              style: AppTextStyles.whiteBody.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 }

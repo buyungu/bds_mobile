@@ -5,9 +5,32 @@ import '../../core/widgets/hero_section.dart';
 // import '../../core/widgets/loading_indicator.dart';
 // import '../../core/widgets/custom_button.dart';
 // import 'dashboard_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
+
+  final List<Map<String, dynamic>> nearbyCenters = [
+  {
+    'name': 'City Hospital 1',
+    'distance': '2.1',
+    'latitude': -6.7924,
+    'longitude': 39.2083,
+  },
+  {
+    'name': 'City Hospital 2',
+    'distance': '4.2',
+    'latitude': -6.8000,
+    'longitude': 39.2500,
+  },
+  {
+    'name': 'City Hospital 3',
+    'distance': '6.3',
+    'latitude': -6.7700,
+    'longitude': 39.2200,
+  },
+];
+
 
   @override
   Widget build(BuildContext context) {
@@ -139,11 +162,11 @@ class HomeScreen extends StatelessWidget {
                       ),
                       _buildQuickActionCard(
                         context, 
-                        label: "Centers", 
+                        label: "Blood Requests", 
                         color: Colors.purple, 
-                        icon: Icons.location_on, 
+                        icon: Icons.bloodtype_sharp, 
                         onTap: () {
-                          Navigator.pushNamed(context, '/centers');
+                          Navigator.pushNamed(context, '/view-requests'); 
                         }
                         
                       ),
@@ -161,7 +184,9 @@ class HomeScreen extends StatelessWidget {
                             style: AppTextStyles.subheading,
                           ),
                           TextButton(
-                            onPressed: () { },
+                            onPressed: () { 
+                              Navigator.pushNamed(context, '/centers');
+                            },
                             child: Text(
                               'See All',
                               style: AppTextStyles.body.copyWith(
@@ -171,64 +196,79 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      ListView.builder(
-                        padding: EdgeInsets.all(0),
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: 3,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 8,
-                                  offset: Offset(0, 4), // changes position of shadow
-                                ),
-                              ],
-                            ),
-                            child: ListTile(
-                              contentPadding: EdgeInsets.all(12),
-                              leading: Container(
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryRed.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(
-                                  Icons.local_hospital,
-                                  color: AppColors.primaryRed,
-                                ),
-                              ),
-                              title: Text(
-                                'City Hospital ${index + 1}',
-                                style: AppTextStyles.bodyBold,
-                              ),
-                              subtitle: Text(
-                                ' ${2.1 * (index + 1)} km away - Open 24/7',
-                                style: AppTextStyles.body,
-                              ),
-                              trailing: InkWell( 
-                                onTap: () {},
-                                child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryRed.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                padding: EdgeInsets.all(8),
-                                child: Icon(
-                                  Icons.arrow_forward,
-                                  color: AppColors.primaryRed,
-                                ),
-                              ),
-                              ),
-                            ),
-                          );
-                        },
-                      )
+                    ListView.builder(
+  padding: EdgeInsets.all(0),
+  shrinkWrap: true,
+  physics: NeverScrollableScrollPhysics(),
+  itemCount: nearbyCenters.length,
+  itemBuilder: (context, index) {
+    final center = nearbyCenters[index];
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: EdgeInsets.all(12),
+        leading: Container(
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppColors.primaryRed.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            Icons.local_hospital,
+            color: AppColors.primaryRed,
+          ),
+        ),
+        title: Text(
+          center['name'],
+          style: AppTextStyles.bodyBold,
+        ),
+        subtitle: Text(
+          '${center['distance']} km away - Open 24/7',
+          style: AppTextStyles.body,
+        ),
+        trailing: InkWell(
+          onTap: () async {
+            final lat = center['latitude'];
+            final lng = center['longitude'];
+            final url = Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
+
+            if (await canLaunchUrl(url)) {
+              await launchUrl(url, mode: LaunchMode.externalApplication);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Could not open map.')),
+              );
+            }
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.primaryRed.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: EdgeInsets.all(8),
+            child: Icon(
+              Icons.arrow_forward,
+              color: AppColors.primaryRed,
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+)
+
                     ],
                   )
                 ],

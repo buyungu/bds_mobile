@@ -75,6 +75,8 @@ class RespondToRequestScreen extends StatelessWidget {
               const SnackBar(content: Text('Thank you! You’ve responded to the request.')),
             );
             // Navigate or trigger further action
+            Navigator.pushNamed(context, '/donation-progress');
+
           },
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:bds/app/theme/app_colors.dart';
 import 'package:bds/app/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/widgets/hero_section.dart';
 // import '../../app/theme/app_text_styles.dart';
 
@@ -252,7 +253,7 @@ extension _FindDonorsStateDonorCard on _FindDonorsState {
             Row(
               children: [
                 _buildInfoChip(
-                  icon: Icons.location_on,
+                  icon: Icons.bloodtype,
                   text: donor['bloodType'] ?? 'Unknown',
                 ),
                 _buildInfoChip(
@@ -317,16 +318,25 @@ extension _FindDonorsStateDonorCard on _FindDonorsState {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                }, 
-                                child: Text('Call'),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  textStyle: AppTextStyles.action,
+                                  onPressed: () async {
+                                    final Uri phoneUri = Uri(scheme: 'tel', path: donor['contact']);
+                                    if (await canLaunchUrl(phoneUri)) {
+                                      await launchUrl(phoneUri);
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Cannot make a phone call')),
+                                      );
+                                    }
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('Call'),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    textStyle: AppTextStyles.action,
+                                  ),
                                 ),
                               ),
-                              ),
+
                             ],
                           );
                         });
