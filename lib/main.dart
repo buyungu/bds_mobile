@@ -1,18 +1,17 @@
-import 'package:bds/features/auth/login_screen.dart';
-import 'package:bds/features/auth/register_screen.dart';
-import 'package:bds/features/auth/welcome_screen.dart';
-import 'package:bds/features/donor/all_requests_screen.dart';
-import 'package:bds/features/donor/donation_history_screen.dart';
-import 'package:bds/features/donor/donate_screen.dart';
-import 'package:bds/features/donor/donation_progress_screen.dart';
-import 'package:bds/features/donor/respond_to_request_screen.dart';
-import 'package:bds/features/home/donation_centers.dart';
-import 'package:bds/features/home/home_screen.dart';
-import 'package:bds/features/home/notifications.dart';
-import 'package:bds/features/profile/profile_screen.dart';
-import 'package:bds/features/recipient/create_request_screen.dart';
-import 'package:bds/features/recipient/find_donors.dart';
-import 'package:bds/features/recipient/my_requests_screen.dart';
+import 'package:bds/screens/auth/login_screen.dart';
+import 'package:bds/screens/auth/register_screen.dart';
+import 'package:bds/screens/auth/welcome_screen.dart';
+import 'package:bds/screens/home/all_requests_screen.dart';
+import 'package:bds/screens/home/donation_history_screen.dart';
+import 'package:bds/screens/home/donation_progress_screen.dart';
+import 'package:bds/screens/home/respond_to_request_screen.dart';
+import 'package:bds/screens/home/donation_centers_screen.dart';
+import 'package:bds/screens/home/home_screen.dart';
+import 'package:bds/screens/home/notifications.dart';
+import 'package:bds/screens/profile/profile_screen.dart';
+import 'package:bds/screens/home/create_request_screen.dart';
+import 'package:bds/screens/home/find_donors_screen.dart';
+import 'package:bds/screens/home/my_requests_screen.dart';
 import 'package:flutter/material.dart';
 
 
@@ -43,7 +42,6 @@ class BloodDonationApp extends StatelessWidget {
         '/my-requests': (context) => const MyRequestsScreen(),
         '/view-requests': (context) => const AllRequestsScreen(),
         '/donation-history': (context) => const DonationHistoryScreen(),
-        '/donate': (context) => const DonateScreen(),
         '/find': (context) => const FindDonors(),
         '/centers': (context) => const DonationCentersScreen(),
         '/notifications': (context) => const NotificationsScreen(),
