@@ -1,79 +1,252 @@
+import 'package:bds/utils/app_colors.dart';
+import 'package:bds/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
-import '../../widgets/hero_section.dart';
-import '../../widgets/custom_button.dart';
 
+// Simple User Model
+class User {
+  String imagePath;
+  String name;
+  String email;
+  String phone;
+  String bloodType;
+  String location;
+
+  User({
+    required this.imagePath,
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.bloodType,
+    required this.location,
+  });
+}
+
+// Dummy user (could replace with shared preferences logic)
+User dummyUser = User(
+  imagePath: 'https://images.unsplash.com/photo-1554151228-14d9def656e4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80',
+  name: 'John Doe',
+  email: 'john.doe@example.com',
+  phone: '0757405770',
+  bloodType: 'A+',
+  location: 'Mataa shungashunga, Dar es Salaam 16103, Tanzania',
+);
+
+// Edit Profile Screen
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+  const EditProfileScreen({Key? key}) : super(key: key);
 
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
+  _EditProfileScreenState createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController _nameController = TextEditingController(text: 'John Doe');
-  final TextEditingController _emailController = TextEditingController(text: 'john@example.com');
-  final TextEditingController _locationController = TextEditingController(text: 'Dar es Salaam');
-  String _selectedBloodType = 'A+';
-
-  final List<String> _bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  late User user;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const HeroSection(
-                title: 'Edit Profile',
-                subtitle: 'Update your personal details',
+  void initState() {
+    super.initState();
+    user = dummyUser;
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: Text('Edit Profile')),
+        body: ListView(
+          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          physics: BouncingScrollPhysics(),
+          children: [
+            // Profile Image
+            Center(
+              child: Stack(
+                children: [
+                  ClipOval(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Ink.image(
+                        image: NetworkImage(user.imagePath),
+                        fit: BoxFit.cover,
+                        width: 128,
+                        height: 128,
+                        child: InkWell(
+                          onTap: () async {
+                            // Handle image tap or edit here
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 4,
+                    child: ClipOval(
+                      child: Container(
+                        padding: EdgeInsets.all(3),
+                        color: Colors.white,
+                        child: ClipOval(
+                          child: Container(
+                            padding: EdgeInsets.all(8),
+                            color: AppColors.primaryRed,
+                            child: Icon(
+                              Icons.add_a_photo,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedBloodType,
-                items: _bloodTypes.map((type) {
-                  return DropdownMenuItem(value: type, child: Text(type));
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedBloodType = value!;
-                  });
-                },
-                decoration: const InputDecoration(labelText: 'Blood Type'),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _locationController,
-                decoration: const InputDecoration(labelText: 'Location'),
-              ),
-              const SizedBox(height: 24),
-              CustomButton(
-                label: 'Save Changes',
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Handle profile update
-                    Navigator.pop(context);
-                  }
-                },
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+
+            // Full Name
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: TextEditingController(text: user.name),
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.person, color: AppColors.primaryRed),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.primaryRed.withOpacity(0.5), width: 2),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (name) => setState(() => user.name = name),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Email
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: TextEditingController(text: user.email),
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.email, color: AppColors.primaryRed),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.primaryRed, width: 2),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (email) => setState(() => user.email = email),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Phone
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Phone', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: TextEditingController(text: user.phone),
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.phone, color: AppColors.primaryRed),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.primaryRed, width: 2),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (phone) => setState(() => user.phone = phone),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Blood Type
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Blood Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: TextEditingController(text: user.bloodType),
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.bloodtype, color: AppColors.primaryRed),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.primaryRed, width: 2),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (bloodType) => setState(() => user.bloodType = bloodType),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Location
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Location', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: TextEditingController(text: user.location),
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.location_on, color: AppColors.primaryRed),
+                    suffixIcon: Icon(Icons.my_location, color: AppColors.primaryRed),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.primaryRed, width: 2),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onChanged: (location) => setState(() => user.location = location),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            
+          ],
+        ),
+        bottomNavigationBar: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        child: CustomButton(
+          label: "Update Info",
+          onPressed: () {
+          },
         ),
       ),
-    );
-  }
+      );
 }

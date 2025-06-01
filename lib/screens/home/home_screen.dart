@@ -1,5 +1,6 @@
 import 'package:bds/screens/events/events_screen.dart';
 import 'package:bds/screens/home/main_screen.dart';
+import 'package:bds/screens/profile/profile_screen.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 
@@ -16,8 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List screens = [
     MainScreen(),
     EventsScreen(),
-    Container(child: Center(child:Text("Profile Page"),),)
-
+    ProfileScreen(),
   ];
 
   void onTapedNav(int index) {

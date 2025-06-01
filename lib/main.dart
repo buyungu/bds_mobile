@@ -9,6 +9,7 @@ import 'package:bds/screens/home/home_screen.dart';
 import 'package:bds/screens/home/respond_to_request_screen.dart';
 import 'package:bds/screens/home/donation_centers_screen.dart';
 import 'package:bds/screens/home/notifications.dart';
+import 'package:bds/screens/profile/edit_profile_screen.dart';
 import 'package:bds/screens/profile/profile_screen.dart';
 import 'package:bds/screens/home/create_request_screen.dart';
 import 'package:bds/screens/home/find_donors_screen.dart';
@@ -39,7 +40,8 @@ class BloodDonationApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/home': (context) => HomeScreen(),
-        '/profile': (context) => const ProfileScreen(),
+        '/profile': (context) => ProfileScreen(),
+        '/edit-profile': (context) => EditProfileScreen(),
         '/create-request': (context) => const CreateRequestScreen(),
         '/my-requests': (context) => const MyRequestsScreen(),
         '/view-requests': (context) => const AllRequestsScreen(),
@@ -51,6 +53,7 @@ class BloodDonationApp extends StatelessWidget {
         '/donation-progress': (context) => DonationProgressScreen(),
         '/events': (context) => EventsScreen(),
         '/event-details': (context) => EventDetailsScreen(),
+
 
       },
     );
