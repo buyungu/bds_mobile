@@ -1,13 +1,15 @@
+import 'package:bds/utils/app_constants.dart';
 import 'package:get/get.dart';
 
 class ApiClient extends GetConnect implements GetxService {
   late String token;
-  late String appBaseUrl;
+  final String appBaseUrl;
   late Map<String, String> _mainHeaders;
 
-  ApiClient({required this.appBaseUrl, required this.token}){
+  ApiClient({required this.appBaseUrl}){
     baseUrl = appBaseUrl; 
     timeout = Duration(seconds: 30);
+    token = AppConstants.TOKEN; // Initialize with an empty string or fetch from storage
     _mainHeaders = {
       'Content-type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',

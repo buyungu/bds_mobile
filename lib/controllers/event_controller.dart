@@ -9,14 +9,19 @@ class EventController extends GetxController {
 
   List<dynamic> _eventList = [];
   List<dynamic> get eventList => _eventList;
+
+  bool _isLoaded = false;
+  bool get isLoaded => _isLoaded;
+
  
   Future<void> getEventsList() async {
-    Response response = await eventRepo.getEventsList();
+    Response response = await eventRepo.getEventsList(); 
     if (response.statusCode == 200) {
       print("Got Events");
       _eventList = [];
       _eventList.addAll(Event.fromJson(response.body).events);
-      print(_eventList);
+      // print(_eventList);
+      _isLoaded = true;
       update(); // Notify listeners about the change
     }
     else {

@@ -1,6 +1,8 @@
+import 'package:bds/routes/route_helper.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/hero_section.dart';
 
@@ -75,8 +77,7 @@ class RespondToRequestScreen extends StatelessWidget {
               const SnackBar(content: Text('Thank you! You’ve responded to the request.')),
             );
             // Navigate or trigger further action
-            Navigator.pushNamed(context, '/donation-progress');
-
+            Get.toNamed(RouteHelper.getDonationProgress());
           },
         ),
       ),

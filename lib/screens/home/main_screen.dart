@@ -1,11 +1,10 @@
+import 'package:bds/routes/route_helper.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/hero_section.dart';
-// import '../../core/widgets/loading_indicator.dart';
-// import '../../core/widgets/custom_button.dart';
-// import 'dashboard_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:get/get.dart';
 
 class MainScreen extends StatelessWidget {
   MainScreen({super.key});
@@ -89,8 +88,7 @@ class MainScreen extends StatelessWidget {
                     SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        
-                          Navigator.pushNamed(context, '/respond'); 
+                        Get.toNamed(RouteHelper.getRespond());
                       }, 
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryRed,
@@ -104,12 +102,7 @@ class MainScreen extends StatelessWidget {
                         style: AppTextStyles.whiteBody
                       ),
                     ),
-                    // SizedBox(height: 24),
-                    // DashboardOverview(),
-                    // SizedBox(height: 16),
-                    // UpcomingEvents(),
-                    // SizedBox(height: 16),
-                    // ActiveRequests(),
+
                   ],
                 ),
                ),
@@ -137,7 +130,7 @@ class MainScreen extends StatelessWidget {
                         color: Colors.blue, 
                         icon: Icons.local_hospital, 
                         onTap: () {
-                          Navigator.pushNamed(context, '/find'); 
+                          Get.toNamed(RouteHelper.getFind());
                         }
                         
                       ),
@@ -147,7 +140,7 @@ class MainScreen extends StatelessWidget {
                         color: Colors.green, 
                         icon: Icons.bloodtype, 
                         onTap: () {
-                          Navigator.pushNamed(context, '/create-request'); // Navigate to Create Request
+                          Get.toNamed(RouteHelper.getCreateRequest());
                         }
                         
                       ),
@@ -157,7 +150,7 @@ class MainScreen extends StatelessWidget {
                         color: Colors.pink, 
                         icon: Icons.warning,
                         onTap: () {
-                          Navigator.pushNamed(context, '/my-requests');
+                          Get.toNamed(RouteHelper.getMyRequests());
                         }
                         
                       ),
@@ -167,7 +160,7 @@ class MainScreen extends StatelessWidget {
                         color: Colors.purple, 
                         icon: Icons.bloodtype_sharp, 
                         onTap: () {
-                          Navigator.pushNamed(context, '/view-requests'); 
+                          Get.toNamed(RouteHelper.getViewRequests());
                         }
                         
                       ),
@@ -186,7 +179,7 @@ class MainScreen extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () { 
-                              Navigator.pushNamed(context, '/centers');
+                              Get.toNamed(RouteHelper.getCenters());
                             },
                             child: Text(
                               'See All',
@@ -198,77 +191,77 @@ class MainScreen extends StatelessWidget {
                         ],
                       ),
                     ListView.builder(
-  padding: EdgeInsets.all(0),
-  shrinkWrap: true,
-  physics: NeverScrollableScrollPhysics(),
-  itemCount: nearbyCenters.length,
-  itemBuilder: (context, index) {
-    final center = nearbyCenters[index];
+                      padding: EdgeInsets.all(0),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: nearbyCenters.length,
+                      itemBuilder: (context, index) {
+                        final center = nearbyCenters[index];
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.all(12),
-        leading: Container(
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppColors.primaryRed.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(
-            Icons.local_hospital,
-            color: AppColors.primaryRed,
-          ),
-        ),
-        title: Text(
-          center['name'],
-          style: AppTextStyles.bodyBold,
-        ),
-        subtitle: Text(
-          '${center['distance']} km away - Open 24/7',
-          style: AppTextStyles.body,
-        ),
-        trailing: InkWell(
-          onTap: () async {
-            final lat = center['latitude'];
-            final lng = center['longitude'];
-            final url = Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
+                        return Container(
+                          margin: EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.all(12),
+                            leading: Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryRed.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                Icons.local_hospital,
+                                color: AppColors.primaryRed,
+                              ),
+                            ),
+                            title: Text(
+                              center['name'],
+                              style: AppTextStyles.bodyBold,
+                            ),
+                            subtitle: Text(
+                              '${center['distance']} km away - Open 24/7',
+                              style: AppTextStyles.body,
+                            ),
+                            trailing: InkWell(
+                              onTap: () async {
+                                final lat = center['latitude'];
+                                final lng = center['longitude'];
+                                final url = Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
 
-            if (await canLaunchUrl(url)) {
-              await launchUrl(url, mode: LaunchMode.externalApplication);
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Could not open map.')),
-              );
-            }
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.primaryRed.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            padding: EdgeInsets.all(8),
-            child: Icon(
-              Icons.arrow_forward,
-              color: AppColors.primaryRed,
-            ),
-          ),
-        ),
-      ),
-    );
-  },
-)
+                                if (await canLaunchUrl(url)) {
+                                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Could not open map.')),
+                                  );
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryRed.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: EdgeInsets.all(8),
+                                child: Icon(
+                                  Icons.arrow_forward,
+                                  color: AppColors.primaryRed,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    )
 
                     ],
                   )

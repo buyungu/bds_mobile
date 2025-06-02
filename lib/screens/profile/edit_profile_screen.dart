@@ -23,7 +23,7 @@ class User {
 
 // Dummy user (could replace with shared preferences logic)
 User dummyUser = User(
-  imagePath: 'http://10.0.2.2:8000/images/wana/toto.jpg',
+  imagePath: 'http://127.0.0.1:8000/images/wana/toto.jpg',
   name: 'John Doe',
   email: 'john.doe@example.com',
   phone: '0757405770',

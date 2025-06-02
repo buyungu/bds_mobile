@@ -1,6 +1,8 @@
+import 'package:bds/routes/route_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
+import 'package:get/get.dart';
 import '../../widgets/hero_section.dart';
 
 class MyRequestsScreen extends StatelessWidget {
@@ -113,7 +115,7 @@ class MyRequestsScreen extends StatelessWidget {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/donation-progress', arguments: request);
+              Get.toNamed(RouteHelper.getDonationProgress());
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryRed,

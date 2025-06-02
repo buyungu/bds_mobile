@@ -1,4 +1,6 @@
+import 'package:bds/routes/route_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_text_styles.dart';
 
@@ -23,7 +25,7 @@ class HeroSection extends StatelessWidget {
                   child: IconButton(
                     icon: Icon(Icons.notifications, color: AppColors.primaryRed), 
                     onPressed: () { 
-                      Navigator.pushNamed(context, '/notifications');
+                      Get.toNamed(RouteHelper.getNotifications());
                     },
                   ),  
                 ),  

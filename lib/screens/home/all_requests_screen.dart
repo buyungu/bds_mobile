@@ -1,6 +1,8 @@
+import 'package:bds/routes/route_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
+import 'package:get/get.dart';
 import '../../widgets/hero_section.dart';
 import '../../widgets/custom_button.dart';
 
@@ -92,8 +94,7 @@ class AllRequestsScreen extends StatelessWidget {
           CustomButton(
             label: 'View Details',
             onPressed: () {
-              // Navigator.push(context, MaterialPageRoute(builder: (_) => RespondToRequestScreen()));
-              Navigator.pushNamed(context, '/respond');
+              Get.toNamed(RouteHelper.getRespond());
             },
           ),
         ],

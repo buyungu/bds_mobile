@@ -1,21 +1,22 @@
+import 'package:bds/controllers/event_controller.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
 import 'package:bds/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/hero_section.dart';
+import 'package:get/get.dart';
 
 class EventDetailsScreen extends StatelessWidget {
-  final int requiredPints = 5;
-  final int confirmedDonors = 3;
-  final String hospitalName = "City Blood Center";
-  final String hospitalAddress = "123 Health Street, Dar es Salaam";
-  final String hospitalLocationUrl = "https://maps.google.com/?q=-6.7924,39.2083"; // example location
+  int pageId;
 
-  EventDetailsScreen({super.key});
+  EventDetailsScreen({Key? key, required this.pageId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var event = Get.find<EventController>().eventList[pageId];
+    print("Page Id is "+pageId.toString());
+    print("Event Title is "+event.title.toString());
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
@@ -44,7 +45,7 @@ class EventDetailsScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Title of an event goes here", style: AppTextStyles.subheading),
+                        Text(event.title, style: AppTextStyles.subheading),
                         const SizedBox(height: 16),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 6),
@@ -53,7 +54,7 @@ class EventDetailsScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start, // <-- Add this line
                             children: [
                               Text(
-                                "The common content of an ICT policy covers all the major aspects of how technology is to be used, managed, and protected within an organization. A clear and well-structured policy helps ensure consistency, reduces risks, and supports smooth ICT operations across all departments. It also builds accountability among users and promotes a culture of security and professionalism.",
+                                event.description,
                                 style: AppTextStyles.body.copyWith(
                                   fontSize: 14,
                                   color: Colors.black87,
@@ -62,56 +63,63 @@ class EventDetailsScreen extends StatelessWidget {
                               const SizedBox(height: 8),
 
                               Text(
-                                "Event Date: 30/7/2025",
+                                "Event Date: "+event.eventDate,
                                 style: AppTextStyles.bodyBold,
                               ),
                               
                               const SizedBox(height: 8),
 
                               Text(
-                                "Location: Address goes here",
+                                "Location: "+event.location.address,
                                 style: AppTextStyles.bodyBold,
                               ),
                               
                               SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(10),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.phone, color: AppColors.primaryRed, size: 16),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          event.user.phone,
+                                          style: AppTextStyles.body,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.phone, color: AppColors.primaryRed, size: 16),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        "071234567890",
-                                        style: AppTextStyles.body,
-                                      ),
-                                    ],
+                                  SizedBox(width: 8),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.location_on, color: AppColors.primaryRed, size: 16),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          event.location.name,
+                                          style: AppTextStyles.body,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                SizedBox(width: 8),
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.location_on, color: AppColors.primaryRed, size: 16),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        "mabibo mwisho",
-                                        style: AppTextStyles.body,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                             SizedBox(height: 8,),
                             CustomButton(label: "Enroll to an event", onPressed: (){})
@@ -138,19 +146,19 @@ class EventDetailsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Donation Center", style: AppTextStyles.subheading),
+                      Text("Donation center", style: AppTextStyles.subheading),
                       const SizedBox(height: 12),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: Icon(Icons.local_hospital, color: AppColors.primaryRed, size: 32),
-                        title: Text(hospitalName, style: AppTextStyles.bodyBold),
-                        subtitle: Text(hospitalAddress, style: AppTextStyles.body),
+                        title: Text(event.location.name, style: AppTextStyles.bodyBold),
+                        subtitle: Text(event.location.address, style: AppTextStyles.body),
                       ),
                       const SizedBox(height: 12),
                       CustomButton(
                         label: "View in Google Maps",
                         onPressed: () async {
-                          final Uri url = Uri.parse(hospitalLocationUrl);
+                          final Uri url = Uri.parse(event.location.url);
                           if (await canLaunchUrl(url)) {
                             await launchUrl(url);
                           } else {
