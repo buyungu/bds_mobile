@@ -1,3 +1,4 @@
+import 'package:bds/controllers/event_controller.dart';
 import 'package:bds/screens/auth/login_screen.dart';
 import 'package:bds/screens/auth/register_screen.dart';
 import 'package:bds/screens/auth/welcome_screen.dart';
@@ -16,9 +17,12 @@ import 'package:bds/screens/home/find_donors_screen.dart';
 import 'package:bds/screens/home/my_requests_screen.dart';
 import 'package:bds/screens/events/event_details_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'helper/dependencies.dart' as dep;
 
-
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await dep.init();
   runApp(const BloodDonationApp());
 }
 
@@ -27,6 +31,7 @@ class BloodDonationApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Get.find<EventController>().getEventsList();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Blood Donation App',

@@ -23,7 +23,7 @@ class User {
 
 // Dummy user (could replace with shared preferences logic)
 User dummyUser = User(
-  imagePath: 'https://images.unsplash.com/photo-1554151228-14d9def656e4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80',
+  imagePath: 'http://10.0.2.2:8000/images/wana/toto.jpg',
   name: 'John Doe',
   email: 'john.doe@example.com',
   phone: '0757405770',
