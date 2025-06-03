@@ -62,7 +62,7 @@ class AllRequestsScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => _buildRequestCard(context, requests[index]),
+                    (context, index) => _buildRequestCard(context, requests[index], index),
                     childCount: requests.length,
                   ),
                 ),
@@ -74,7 +74,7 @@ class AllRequestsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRequestCard(BuildContext context, RequestModel request) {
+  Widget _buildRequestCard(BuildContext context, RequestModel request, int index) {
     return Card(
       elevation: 4,
       margin: const EdgeInsets.only(bottom: 16),
@@ -110,7 +110,7 @@ class AllRequestsScreen extends StatelessWidget {
             CustomButton(
               label: 'View Details',
               onPressed: () {
-                Get.toNamed(RouteHelper.getRespond());
+                Get.toNamed(RouteHelper.getRespond(index));
               },
             ),
           ],

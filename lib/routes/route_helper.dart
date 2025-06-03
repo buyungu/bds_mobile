@@ -49,7 +49,7 @@ class RouteHelper {
   static String getFind() => '$find';
   static String getCenters() => '$centers';
   static String getNotifications() => '$notifications';
-  static String getRespond() => '$respond';
+  static String getRespond(int pageId) => '$respond?pageId=$pageId';
   static String getDonationProgress() => '$donationProgress';
   static String getEvents() => '$events';
   static String getEventDetails(int pageId) => '$eventDetails?pageId=$pageId';
@@ -68,9 +68,17 @@ class RouteHelper {
     GetPage(name: find, page: () => const FindDonors()),
     GetPage(name: centers, page: () => const DonationCentersScreen()),
     GetPage(name: notifications, page: () => const NotificationsScreen()),
-    GetPage(name: respond, page: () => const RespondToRequestScreen()),
+    GetPage(
+      name: respond,
+      page: () {
+        var pageId = Get.parameters['pageId'];
+        return RespondToRequestScreen(pageId: int.parse(pageId!));
+      },
+      transition: Transition.fadeIn,
+    ),
     GetPage(name: donationProgress, page: () => DonationProgressScreen()),
     GetPage(name: events, page: () => EventsScreen()),
+
     GetPage(
       name: eventDetails,
       page: () {

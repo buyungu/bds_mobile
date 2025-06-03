@@ -1,26 +1,37 @@
-import 'package:bds/controllers/request_controller.dart';
-import 'package:bds/models/requests_model.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
 import 'package:bds/widgets/custom_button.dart';
 import 'package:bds/widgets/hero_section.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
-class RespondToRequestScreen extends StatelessWidget {
-  final int pageId;
-  RespondToRequestScreen({super.key, required this.pageId});
+class RequestDetailsScreen extends StatelessWidget {
+  const RequestDetailsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var request = Get.find<RequestController>().requestList[pageId];
-    print("Page Id is " + pageId.toString());
-    print("Request Title is " + request.id.toString());
     // --- Example static data based on your model ---
-    final confirmedDonors = request.donors?.length ?? 0;
-    final remaining = (request.quantity ?? 0) - confirmedDonors;
+    final bloodType = 'A+';
+    final urgency = 'High';
+    final status = 'Pending';
+    final quantity = 4;
+    final confirmedDonors = 2;
+    final remaining = quantity - confirmedDonors;
+    final createdAt = '2024-06-03T10:00:00Z';
+
+    final recipient = {
+      'name': 'Jane Doe',
+      'phone': '+255 123 456 789',
+      'address': 'Mikocheni, Dar es Salaam',
+    };
+
+    final hospital = {
+      'name': 'City Hospital',
+      'address': 'Ali Hassan Mwinyi Rd, Dar es Salaam',
+      'lat': -6.777076,
+      'lng': 39.242235,
+    };
+
     final notes = 'Patient in critical condition. Immediate help required.';
 
     return Scaffold(
@@ -30,7 +41,7 @@ class RespondToRequestScreen extends StatelessWidget {
         icon: Icon(Icons.phone, color: Colors.white),
         label: Text('Call Recipient', style: TextStyle(color: Colors.white)),
         onPressed: () async {
-          final Uri url = Uri.parse('tel: '+request.recipient?.phone);
+          final Uri url = Uri.parse('tel:${recipient['phone']}');
           if (await canLaunchUrl(url)) {
             await launchUrl(url);
           }
@@ -46,19 +57,19 @@ class RespondToRequestScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(request.bloodType, request.urgency, request.status),
+                _buildHeader(bloodType, urgency, status),
                 const SizedBox(height: 18),
-                _buildProgressBar(request.quantity, confirmedDonors, remaining),
+                _buildProgressBar(quantity, confirmedDonors, remaining),
                 const SizedBox(height: 24),
                 _buildCardSection(
-                  child: _buildRecipientCard(request.recipient),
+                  child: _buildRecipientCard(recipient),
                 ),
                 const SizedBox(height: 18),
                 _buildCardSection(
-                  child: _buildHospitalCard(context, request.hospital),
+                  child: _buildHospitalCard(context, hospital),
                 ),
                 const SizedBox(height: 18),
-                _buildTimeline(request.createdAt, confirmedDonors, request.status),
+                _buildTimeline(createdAt, confirmedDonors, status),
                 const SizedBox(height: 18),
                 _buildCardSection(
                   child: _buildNotes(notes),
@@ -85,19 +96,19 @@ class RespondToRequestScreen extends StatelessWidget {
   }
 
   Widget _buildHeader(String bloodType, String urgency, String status) {
-    Color urgencyColor = (urgency.toLowerCase() == 'high' || urgency.toLowerCase() == 'emergency') ? AppColors.primaryRed : Colors.green;
-    Color statusColor = status.toLowerCase() == 'matched'
-        ? const Color.fromARGB(255, 164, 255, 167)
-        : status.toLowerCase() == 'partially matched'
-            ? const Color.fromARGB(255, 255, 211, 144)
-            : const Color.fromARGB(255, 255, 153, 151);
+    Color urgencyColor = urgency.toLowerCase() == 'high' ? Colors.orange : Colors.green;
+    Color statusColor = status.toLowerCase() == 'completed'
+        ? Colors.green
+        : status.toLowerCase() == 'pending'
+            ? Colors.orange
+            : AppColors.primaryRed;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primaryRed, Colors.redAccent.withOpacity(0.7)],
+          colors: [AppColors.primaryRed.withOpacity(0.9), Colors.redAccent.withOpacity(0.7)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -124,13 +135,13 @@ class RespondToRequestScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: urgencyColor.withOpacity(0.25),
+                  color: urgencyColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   urgency,
                   style: AppTextStyles.body.copyWith(
-                    color: urgencyColor,
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -139,7 +150,7 @@ class RespondToRequestScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.25),
+                  color: statusColor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -212,7 +223,7 @@ class RespondToRequestScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRecipientCard(Recipient? recipient) {
+  Widget _buildRecipientCard(Map recipient) {
     return Padding(
       padding: const EdgeInsets.all(18),
       child: Row(
@@ -227,13 +238,13 @@ class RespondToRequestScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(recipient?.name ?? 'Unknown', style: AppTextStyles.bodyBold.copyWith(fontSize: 18)),
+                Text(recipient['name'], style: AppTextStyles.bodyBold.copyWith(fontSize: 18)),
                 const SizedBox(height: 4),
                 Row(
                   children: [
                     Icon(Icons.phone, color: AppColors.primaryRed, size: 18),
                     const SizedBox(width: 4),
-                    Text(recipient?.phone ?? '', style: AppTextStyles.body),
+                    Text(recipient['phone'], style: AppTextStyles.body),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -243,7 +254,7 @@ class RespondToRequestScreen extends StatelessWidget {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        recipient?.location?.address ?? '',
+                        recipient['address'],
                         style: AppTextStyles.body.copyWith(color: Colors.black87),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -258,7 +269,7 @@ class RespondToRequestScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHospitalCard(BuildContext context, Hospital? hospital) {
+  Widget _buildHospitalCard(BuildContext context, Map hospital) {
     return Padding(
       padding: const EdgeInsets.all(18),
       child: Column(
@@ -269,17 +280,18 @@ class RespondToRequestScreen extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: Icon(Icons.local_hospital, color: AppColors.primaryRed, size: 32),
-            title: Text(hospital?.name ?? 'Unknown', style: AppTextStyles.bodyBold),
-            subtitle: Text(hospital?.location?.address ?? '', style: AppTextStyles.body),
+            title: Text(hospital['name'], style: AppTextStyles.bodyBold),
+            subtitle: Text(hospital['address'], style: AppTextStyles.body),
           ),
           const SizedBox(height: 12),
           CustomButton(
             label: "View in Google Maps",
-           onPressed: () async {
-              final String? mapsUrl = hospital?.location?.url;
-              final Uri url = Uri.parse(mapsUrl ?? '');
-              if (mapsUrl != null && await canLaunchUrl(url)) {
-                await launchUrl(url);
+            onPressed: () async {
+              final Uri url = Uri.parse(
+                "https://www.google.com/maps/search/?api=1&query=${hospital['lat']},${hospital['lng']}",
+              );
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Could not launch Google Maps')),
@@ -298,7 +310,7 @@ class RespondToRequestScreen extends StatelessWidget {
       {
         'icon': Icons.assignment_turned_in,
         'label': 'Request Created',
-        'time': timeago.format(DateTime.parse(createdAt)),
+        'time': '10 min ago',
         'color': Colors.blue,
       },
       {
@@ -310,16 +322,8 @@ class RespondToRequestScreen extends StatelessWidget {
       {
         'icon': Icons.check_circle,
         'label': 'Donation Complete',
-        'time': status.toLowerCase() == 'fulfilled'
-            ? 'Fulfilled'
-            : status.toLowerCase() == 'canceled'
-                ? 'Canceled'
-                : 'Pending',
-        'color': status.toLowerCase() == 'fulfilled'
-            ? Colors.green
-            : status.toLowerCase() == 'canceled'
-                ? Colors.red
-                : Colors.grey,
+        'time': status.toLowerCase() == 'completed' ? 'Completed' : 'Pending',
+        'color': status.toLowerCase() == 'completed' ? Colors.green : Colors.grey,
       },
     ];
 

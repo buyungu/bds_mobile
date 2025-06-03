@@ -33,6 +33,8 @@ class RequestModel {
   String? updatedAt;
   Recipient? recipient;
   Hospital? hospital;
+  List<Donors>? donors;
+
 
   RequestModel(
       {this.id,
@@ -45,7 +47,8 @@ class RequestModel {
       this.createdAt,
       this.updatedAt,
       this.recipient,
-      this.hospital});
+      this.hospital,
+      this.donors});
 
   RequestModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -63,6 +66,12 @@ class RequestModel {
     hospital = json['hospital'] != null
         ? new Hospital.fromJson(json['hospital'])
         : null;
+    if (json['donors'] != null) {
+      donors = <Donors>[];
+      json['donors'].forEach((v) {
+        donors!.add(new Donors.fromJson(v));
+      });
+    }    
   }
 
   Map<String, dynamic> toJson() {
@@ -81,6 +90,9 @@ class RequestModel {
     }
     if (this.hospital != null) {
       data['hospital'] = this.hospital!.toJson();
+    }
+    if (this.donors != null) {
+      data['donors'] = this.donors!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -192,6 +204,78 @@ class Hospital {
     if (this.location != null) {
       data['location'] = this.location!.toJson();
     }
+    return data;
+  }
+}
+
+class Donors {
+  int? id;
+  String? name;
+  String? email;
+  Null? avatar;
+  String? phone;
+  Location? location;
+  Pivot? pivot;
+
+  Donors(
+      {this.id,
+      this.name,
+      this.email,
+      this.avatar,
+      this.phone,
+      this.location,
+      this.pivot});
+
+  Donors.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    email = json['email'];
+    avatar = json['avatar'];
+    phone = json['phone'];
+    location = json['location'] != null
+        ? new Location.fromJson(json['location'])
+        : null;
+    pivot = json['pivot'] != null ? new Pivot.fromJson(json['pivot']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['name'] = this.name;
+    data['email'] = this.email;
+    data['avatar'] = this.avatar;
+    data['phone'] = this.phone;
+    if (this.location != null) {
+      data['location'] = this.location!.toJson();
+    }
+    if (this.pivot != null) {
+      data['pivot'] = this.pivot!.toJson();
+    }
+    return data;
+  }
+}
+
+class Pivot {
+  int? bloodRequestId;
+  int? donorId;
+  String? createdAt;
+  String? updatedAt;
+
+  Pivot({this.bloodRequestId, this.donorId, this.createdAt, this.updatedAt});
+
+  Pivot.fromJson(Map<String, dynamic> json) {
+    bloodRequestId = json['blood_request_id'];
+    donorId = json['donor_id'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['blood_request_id'] = this.bloodRequestId;
+    data['donor_id'] = this.donorId;
+    data['created_at'] = this.createdAt;
+    data['updated_at'] = this.updatedAt;
     return data;
   }
 }
