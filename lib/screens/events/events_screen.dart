@@ -5,7 +5,6 @@ import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
 import 'package:bds/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/hero_section.dart';
 import 'package:get/get.dart';
 // import '../../app/theme/app_text_styles.dart';
@@ -18,8 +17,6 @@ class EventsScreen extends StatefulWidget {
 }
 
 class _EventsScreenState extends State<EventsScreen> {
-  String? selectedBloodGroup;
-
 
   @override
   Widget build(BuildContext context) {

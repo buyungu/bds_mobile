@@ -1,4 +1,5 @@
 import 'package:bds/utils/app_colors.dart';
+import 'package:bds/utils/app_constants.dart';
 import 'package:bds/widgets/custom_button.dart';
 import 'package:bds/widgets/hero_section.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class User {
 }
 
 const User dummyUser = User(
-  imagePath: 'http://127.0.0.1:8000/images/wana/toto.jpg',
+  imagePath: AppConstants.BASE_URL+'images/wana/toto.jpg',
 
   name: 'John Doe',
   email: 'john.doe@example.com',

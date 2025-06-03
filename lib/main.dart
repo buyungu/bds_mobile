@@ -1,4 +1,6 @@
+import 'package:bds/controllers/donor_controller.dart';
 import 'package:bds/controllers/event_controller.dart';
+import 'package:bds/controllers/request_controller.dart';
 import 'package:bds/routes/route_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,6 +18,8 @@ class BloodDonationApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.find<EventController>().getEventsList();
+    Get.find<DonorController>().getDonorsList();
+    Get.find<RequestController>().getRequestsList();
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Blood Donation App',

@@ -8,7 +8,7 @@ import '../../widgets/hero_section.dart';
 import 'package:get/get.dart';
 
 class EventDetailsScreen extends StatelessWidget {
-  int pageId;
+  final int pageId;
 
   EventDetailsScreen({Key? key, required this.pageId}) : super(key: key);
 
