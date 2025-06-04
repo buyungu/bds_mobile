@@ -7,6 +7,8 @@ class AppConstants {
   static const String DONOR_URL = "api/find-donors";
   static const String REQUEST_URL = "api/requests";
 
+  static const String LOGIN_URL = "api/login";
+
   static const String TOKEN = "dBtoken";
 
 }

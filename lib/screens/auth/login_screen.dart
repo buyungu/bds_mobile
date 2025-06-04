@@ -1,9 +1,13 @@
+import 'package:bds/base/custom_snackbar.dart';
+import 'package:bds/controllers/auth_controller.dart';
+import 'package:bds/models/login_body_model.dart';
+import 'package:bds/routes/route_helper.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/hero_section.dart';
-// import '../../app/theme/app_text_styles.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,9 +17,18 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-    final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  var authController = Get.find<AuthController>();
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,121 +36,129 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
-          const HeroSection(title: 'Login', subtitle: 'Acces your account'),
-
+          const HeroSection(title: 'Login', subtitle: 'Access your account'),
           SliverPadding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          
-                          SizedBox(height: 20,),
-                          _buildTextFormField(
-                            controller: _emailController, 
-                            label: "email", 
-                            icon: Icons.email,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
-                              }
-                              return null;
-                            },
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 32),
+                      _buildTextFormField(
+                        controller: _emailController,
+                        label: "Email",
+                        icon: Icons.email,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your email';
+                          }
+                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                            return 'Enter a valid email';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      _buildTextFormField(
+                        controller: _passwordController,
+                        label: "Password",
+                        icon: Icons.lock,
+                        obscureText: _obscurePassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                            color: AppColors.primaryRed,
                           ),
-                          SizedBox(height: 20,),
-                          _buildTextFormField(
-                            controller: _passwordController, 
-                            label: "password", 
-                            icon: Icons.lock,
-                            suffixIcon: Icons.visibility,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your password';
+                          }
+                          if (value.length < 3) {
+                            return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 40),
+                      CustomButton(
+                        label: 'Login',
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            // TODO: Add your login logic here
+                            LoginBody loginBody = LoginBody(
+                              email: _emailController.text.trim(), 
+                              password: _passwordController.text.trim()
+                            );
+                            authController.login(loginBody).then((status){
+                              if (status.isSuccess) {
+                                print("Success Login");
+                              } else {
+                                showCustomSnackBar(status.message);
                               }
-                              return null;
-                            },
+                            });
+                            Get.toNamed(RouteHelper.getInitial());
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      TextButton(
+                        onPressed: () {
+                          Get.toNamed(RouteHelper.getRegister());
+                        },
+                        child: Text(
+                          'Don\'t have an account? Register',
+                          style: AppTextStyles.bodyBold.copyWith(
+                            color: AppColors.primaryRed,
                           ),
-                          
-                          SizedBox(height: 40,),
-                          CustomButton(
-                            label: 'Login',
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                // Perform login action
-                                Navigator.pushNamed(context, '/home'); // Navigate to Home after login
-                              }
-                            },
-                          ),
-
-                          SizedBox(height: 20,),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/register'); // Navigate to Login after registration
-                            }, 
-                            child: Text(
-                              'Don\'t have an account? Sign up',
-                              style: AppTextStyles.bodyBold.copyWith(
-                                color: AppColors.primaryRed
-                              ),
-                            ),
-                          ),   
-                            
-                        ],
-                      ))
-                  ],
-                )
-              ]
-              )
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ]),
             ),
-          )
+          ),
         ],
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-
       ),
     );
   }
-}
 
-Widget _buildTextFormField({
-  required TextEditingController controller,
-  required String label,
-  required IconData icon,
-  IconData? suffixIcon,
-  int maxLines = 1,
-  String? Function(String?)? validator,
-}) {
-  return TextFormField(
-    controller: controller,
-    maxLines: maxLines,
-    decoration: InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon, color: AppColors.primaryRed,),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide:BorderSide(color: Colors.grey.shade400)
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    Widget? suffixIcon,
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: AppColors.primaryRed),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade400),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.primaryRed),
+        ),
+        suffixIcon: suffixIcon,
       ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.primaryRed)
-      ),
-      suffixIcon: 
-        suffixIcon != null
-          ? IconButton(
-              onPressed: () {
-                // Some codes
-              }, 
-              icon: Icon(suffixIcon, color: AppColors.primaryRed)
-            )
-          : null,
-    ),
-    validator: validator,
-  );
+      validator: validator,
+    );
+  }
 }

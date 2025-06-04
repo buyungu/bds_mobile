@@ -1,3 +1,4 @@
+import 'dart:convert'; // Add this import
 import 'package:bds/data/repository/event_repo.dart';
 import 'package:bds/models/events_model.dart';
 import 'package:get/get.dart';
@@ -19,8 +20,8 @@ class EventController extends GetxController {
     if (response.statusCode == 200) {
       print("Got Events");
       _eventList = [];
-      _eventList.addAll(Event.fromJson(response.body).events);
-      // print(_eventList);
+      final data = jsonDecode(response.body); // Decode the JSON string
+      _eventList.addAll(Event.fromJson(data).events);
       _isLoaded = true;
       update(); // Notify listeners about the change
     }
