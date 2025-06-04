@@ -21,7 +21,7 @@ class RouteHelper {
   static const String initial = "/";
   static const String login = "/login";
   static const String register = "/register";
-  static const String welcome = "/welcome";
+  static const String home = "/home";
   static const String profile = "/profile";
   static const String editProfile = "/edit-profile";
   static const String createRequest = "/create-request";
@@ -39,7 +39,7 @@ class RouteHelper {
   static String getInitial() => '$initial';
   static String getLogin() => '$login';
   static String getRegister() => '$register';
-  static String getWelcome() => '$welcome';
+  static String getHome() => '$home';
   static String getProfile() => '$profile';
   static String getEditProfile() => '$editProfile';
   static String getCreateRequest() => '$createRequest';
@@ -55,8 +55,8 @@ class RouteHelper {
   static String getEventDetails(int pageId) => '$eventDetails?pageId=$pageId';
 
   static List<GetPage> routes = [
-    GetPage(name: initial, page: () => HomeScreen()),
-    GetPage(name: welcome, page: () => const WelcomeScreen()),
+    GetPage(name: initial, page: () => WelcomeScreen()),
+    GetPage(name: home, page: () =>  HomeScreen()),
     GetPage(name: login, page: () => LoginScreen()),
     GetPage(name: register, page: () => RegisterScreen()),
     GetPage(name: profile, page: () => ProfileScreen()),
@@ -72,7 +72,7 @@ class RouteHelper {
       name: respond,
       page: () {
         var pageId = Get.parameters['pageId'];
-        return RespondToRequestScreen(pageId: int.parse(pageId!));
+        return RespondToRequestScreen();
       },
       transition: Transition.fadeIn,
     ),

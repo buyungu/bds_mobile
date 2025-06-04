@@ -1,3 +1,4 @@
+import 'dart:convert'; // Add this at the top
 import 'package:bds/data/repository/Donor_repo.dart';
 import 'package:bds/models/donors_model.dart';
 import 'package:get/get.dart';
@@ -31,13 +32,24 @@ class DonorController extends GetxController {
     if (response.statusCode == 200) {
       print("Got Donors");
       _donorList = [];
-      _donorList.addAll(Donor.fromJson(response.body).donors ?? []);
+      dynamic data = response.body;
+      if (data is String) {
+        if (data.trim().startsWith('<!DOCTYPE html>')) {
+          print("Received HTML instead of JSON! Possible auth or endpoint error.");
+          _isLoaded = true;
+          update();
+          return;
+        }
+        data = jsonDecode(data);
+      }
+      _donorList.addAll(Donor.fromJson(data).donors ?? []);
       _isLoaded = true;
       update(); // Notify listeners about the change
-    }
-    else {
+    } else {
       print("Error fetching Donors: ${response.statusText}");
       // Handle error accordingly, maybe show a message to the user
+      _isLoaded = true;
+      update();
     }
   }
 }

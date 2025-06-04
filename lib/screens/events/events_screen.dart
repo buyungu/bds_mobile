@@ -20,47 +20,75 @@ class _EventsScreenState extends State<EventsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          const HeroSection(title: 'Upcoming Events', subtitle: 'Available events for blood donation drives'),
+    return GetBuilder<EventController>(
+      init: Get.find<EventController>(),
+      builder: (eventController) {
+        if (!eventController.isLoaded) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (eventController.eventList.isEmpty) {
+          return const Center(child: Text("No events found."));
+        }
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: CustomScrollView(
+            slivers: [
+              const HeroSection(title: 'Upcoming Events', subtitle: 'Available events for blood donation drives'),
 
-          SliverPadding(
-            padding: EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Upcoming Events',
-                      style: AppTextStyles.subheading,
+              SliverPadding(
+                padding: EdgeInsets.all(16),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Upcoming Events',
+                          style: AppTextStyles.subheading,
+                        ),
+                       
+                        SizedBox(height: 24),
+                        GetBuilder<EventController>(builder: (events) {
+                          if (!events.isLoaded) {
+                            return Center(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 32),
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primaryRed,
+                                ),
+                              ),
+                            );
+                          }
+                          if (events.eventList == null || events.eventList.isEmpty) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(vertical: 32),
+                              child: Center(
+                                child: Text(
+                                  'No events available.',
+                                  style: AppTextStyles.body,
+                                ),
+                              ),
+                            );
+                          }
+                          return ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: events.eventList.length,
+                            itemBuilder: (context, index) {
+                              return _buildDonorCard(events.eventList[index], index);
+                            },
+                          );
+                        }),
+                      ],
                     ),
-                   
-                    SizedBox(height: 24),
-                    GetBuilder<EventController>(builder:(events){
-                      return events.isLoaded
-                        ? ListView.builder(
-                      padding: EdgeInsets.zero,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: events.eventList.length,
-                      itemBuilder: (context, index) {
-                        return _buildDonorCard(events.eventList[index], index);
-                      },
-                    ) : CircularProgressIndicator(
-                      color: AppColors.primaryRed,
-                    );
-
-                    }),
-                  ],
+                  ]),
                 ),
-              ]),
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

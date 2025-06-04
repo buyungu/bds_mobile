@@ -17,9 +17,6 @@ class BloodDonationApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.find<EventController>().getEventsList();
-    Get.find<DonorController>().getDonorsList();
-    Get.find<RequestController>().getRequestsList();
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Blood Donation App',

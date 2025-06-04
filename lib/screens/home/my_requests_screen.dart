@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:bds/routes/route_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:bds/utils/app_colors.dart';
@@ -32,7 +34,7 @@ class MyRequestsScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8FAFF),
       body: CustomScrollView(
         slivers: [
           HeroSection(
@@ -52,85 +54,151 @@ class MyRequestsScreen extends StatelessWidget {
       ),
     );
   }
-  }
 
   Widget _buildRequestCard(BuildContext context, Map<String, dynamic> request) {
-  Color statusColor;
-  switch (request['status']) {
-    case 'Approved':
-      statusColor = Colors.orange;
-      break;
-    case 'Fulfilled':
-      statusColor = Colors.green;
-      break;
-    default:
-      statusColor = Colors.red;
-  }
+    Color statusColor;
+    IconData statusIcon;
+    switch (request['status']) {
+      case 'Approved':
+        statusColor = Colors.orange;
+        statusIcon = Icons.check_circle_outline;
+        break;
+      case 'Fulfilled':
+        statusColor = Colors.green;
+        statusIcon = Icons.verified;
+        break;
+      default:
+        statusColor = Colors.red;
+        statusIcon = Icons.hourglass_bottom;
+    }
 
-  return Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black12,
-          blurRadius: 8,
-          offset: Offset(0, 4),
-        )
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          request['hospital'],
-          style: AppTextStyles.bodyBold,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          colors: [
+            Colors.white.withOpacity(0.85),
+            Colors.blueGrey.withOpacity(0.07),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        const SizedBox(height: 4),
-        Text(
-          'Blood Type: ${request['bloodType']}',
-          style: AppTextStyles.body,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          'Requested on ${request['date']}',
-          style: AppTextStyles.body.copyWith(color: Colors.grey.shade600),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueGrey.withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
-          child: Text(
-            request['status'],
-            style: AppTextStyles.bodyBold.copyWith(color: statusColor),
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              Get.toNamed(RouteHelper.getDonationProgress());
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryRed,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 12),
+        ],
+        border: Border.all(color: Colors.grey.shade200, width: 1),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 22,
+                      backgroundColor: AppColors.primaryRed.withOpacity(0.12),
+                      child: Icon(
+                        Icons.local_hospital,
+                        color: AppColors.primaryRed,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        request['hospital'],
+                        style: AppTextStyles.bodyBold.copyWith(fontSize: 18),
+                      ),
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 400),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: statusColor.withOpacity(0.13),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(statusIcon, color: statusColor, size: 18),
+                          const SizedBox(width: 6),
+                          Text(
+                            request['status'],
+                            style: AppTextStyles.bodyBold.copyWith(
+                              color: statusColor,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Icon(Icons.bloodtype, color: AppColors.primaryRed, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Blood Type: ',
+                      style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    Text(
+                      request['bloodType'],
+                      style: AppTextStyles.bodyBold.copyWith(
+                        color: AppColors.primaryRed,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today, color: Colors.blueGrey, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Requested on ${request['date']}',
+                      style: AppTextStyles.body.copyWith(color: Colors.blueGrey.shade700),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.timeline, color: Colors.white),
+                    label: Text(
+                      'View Progress',
+                      style: AppTextStyles.whiteBody.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      Get.toNamed(RouteHelper.getDonationProgress());
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryRed,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            child: Text(
-              'View Progress',
-              style: AppTextStyles.whiteBody.copyWith(fontWeight: FontWeight.bold),
-            ),
           ),
         ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }

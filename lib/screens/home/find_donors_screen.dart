@@ -16,6 +16,13 @@ class FindDonors extends StatefulWidget {
 
 class _FindDonorsState extends State<FindDonors> {
   @override
+  void initState() {
+    super.initState();
+    // Make sure DonorController is registered with GetX
+    Get.find<DonorController>().getDonorsList();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,

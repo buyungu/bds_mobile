@@ -10,13 +10,19 @@ import 'package:bds/widgets/hero_section.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class RespondToRequestScreen extends StatelessWidget {
-  final int pageId;
-  RespondToRequestScreen({super.key, required this.pageId});
+  const RespondToRequestScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var request = Get.find<RequestController>().requestList[pageId];
-    print("Page Id is " + pageId.toString());
+    final RequestController requestController = Get.find<RequestController>();
+    final String? idParam = Get.parameters['pageId'];
+    final int requestId = idParam != null ? int.tryParse(idParam) ?? -1 : -1;
+    final request = requestController.requestList.firstWhereOrNull((r) => r.id == requestId);
+
+    if (request == null) {
+      return Center(child: Text('Request not found'));
+    }
+
     print("Request Title is " + request.id.toString());
     // --- Example static data based on your model ---
     final confirmedDonors = request.donors?.length ?? 0;
@@ -85,69 +91,96 @@ class RespondToRequestScreen extends StatelessWidget {
   }
 
   Widget _buildHeader(String bloodType, String urgency, String status) {
-    Color urgencyColor = (urgency.toLowerCase() == 'high' || urgency.toLowerCase() == 'emergency') ? AppColors.primaryRed : Colors.green;
+    Color urgencyColor = (urgency.toLowerCase() == 'high' || urgency.toLowerCase() == 'emergence')
+        ? AppColors.primaryRed
+        : Colors.green;
     Color statusColor = status.toLowerCase() == 'matched'
-        ? const Color.fromARGB(255, 164, 255, 167)
+        ? const Color(0xFFA4FFA7)
         : status.toLowerCase() == 'partially matched'
-            ? const Color.fromARGB(255, 255, 211, 144)
-            : const Color.fromARGB(255, 255, 153, 151);
+            ? const Color(0xFFFFD390)
+            : const Color(0xFFFF9997);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 18),
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primaryRed, Colors.redAccent.withOpacity(0.7)],
+          colors: [
+            AppColors.primaryRed,
+            AppColors.secondaryRed,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(26),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryRed.withOpacity(0.10),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 32,
-            backgroundColor: Colors.white,
-            child: Text(
-              bloodType,
-              style: AppTextStyles.heading.copyWith(
-                color: AppColors.primaryRed,
-                fontWeight: FontWeight.bold,
-                fontSize: 32,
+          // Blood type badge
+          Container(
+            width: 68,
+            height: 68,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.15),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primaryRed.withOpacity(0.18),
+                  blurRadius: 14,
+                  offset: const Offset(0, 7),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                bloodType,
+                style: AppTextStyles.heading.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32,
+                  shadows: [
+                    Shadow(
+                      color: AppColors.primaryRed.withOpacity(0.3),
+                      blurRadius: 8,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 24),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: urgencyColor.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  urgency,
-                  style: AppTextStyles.body.copyWith(
-                    color: urgencyColor,
-                    fontWeight: FontWeight.bold,
+          const SizedBox(width: 28),
+          // Info column with chips stacked vertically
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Chip(
+                  avatar: Icon(Icons.priority_high, color: urgencyColor, size: 18),
+                  label: Text(
+                    urgency,
+                    style: AppTextStyles.bodyBold.copyWith(color: urgencyColor),
                   ),
+                  backgroundColor: urgencyColor.withOpacity(0.13),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 10),
+                Chip(
+                  label: Text(
+                    status,
+                    style: AppTextStyles.bodyBold.copyWith(color: statusColor),
+                  ),
+                  backgroundColor: statusColor.withOpacity(0.18),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: Text(
-                  status,
-                  style: AppTextStyles.bodyBold.copyWith(color: statusColor),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -354,13 +387,24 @@ class RespondToRequestScreen extends StatelessWidget {
                   child: Icon(step['icon'], color: step['color'], size: 22),
                 ),
                 const SizedBox(width: 10),
-                Text(step['label'], style: AppTextStyles.bodyBold),
+                Flexible(
+                  flex: 2,
+                  child: Text(
+                    step['label'],
+                    style: AppTextStyles.bodyBold,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
+                  flex: 3,
                   child: Text(
                     step['time'],
                     style: AppTextStyles.body.copyWith(color: Colors.grey[700]),
                     overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    textAlign: TextAlign.right,
                   ),
                 ),
               ],
