@@ -6,8 +6,11 @@ class AppConstants {
   static const String EVENT_URL = "api/events";
   static const String DONOR_URL = "api/find-donors";
   static const String REQUEST_URL = "api/requests";
+  static const String MY_REQUEST_URL = "api/my-requests";
+  static const String HOSPITAL_URL = "api/hospitals";
 
   static const String LOGIN_URL = "api/login";
+  static const String USER_URL = "api/profile";
 
   static const String TOKEN = "dBtoken";
 

@@ -88,7 +88,7 @@ class MainScreen extends StatelessWidget {
                     SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        Get.toNamed(RouteHelper.getDonationProgress());
+                        // Get.toNamed(RouteHelper.getDonationProgress(/* add required argument here */));
                       }, 
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryRed,

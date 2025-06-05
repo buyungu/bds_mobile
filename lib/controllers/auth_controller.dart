@@ -37,32 +37,5 @@ class AuthController extends GetxController implements GetxService{
     return responseModel;
   }
 
-  // bool isLoggedIn = false;
-
-  // // Example login method
-  // Future<bool> login(LoginBody loginBody) async {
-  //   isLoading.value = true;
-  //   try {
-  //     // TODO: Replace with your API call
-  //     await Future.delayed(const Duration(seconds: 2));
-  //     // Simulate login success if email and password are not empty
-  //     if (loginBody.email.isNotEmpty && loginBody.password.isNotEmpty) {
-  //       isLoggedIn.value = true;
-  //       return true;
-  //     } else {
-  //       isLoggedIn.value = false;
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     isLoggedIn.value = false;
-  //     return false;
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
-
-  // void logout() {
-  //   isLoggedIn.value = false;
-  //   // TODO: Add any additional logout logic here
-  // }
+  
 }

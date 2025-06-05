@@ -1,13 +1,13 @@
 class MyRequest {
-  List<MyRequestsModel>? myRequests;
+  List<MyRequestModel>? myRequests;
 
   MyRequest({this.myRequests});
 
   MyRequest.fromJson(Map<String, dynamic> json) {
     if (json['myRequests'] != null) {
-      myRequests = <MyRequestsModel>[];
+      myRequests = <MyRequestModel>[];
       json['myRequests'].forEach((v) {
-        myRequests!.add(new MyRequestsModel.fromJson(v));
+        myRequests!.add(new MyRequestModel.fromJson(v));
       });
     }
   }
@@ -21,7 +21,7 @@ class MyRequest {
   }
 }
 
-class MyRequestsModel {
+class MyRequestModel {
   int? id;
   int? recipientId;
   int? hospitalId;
@@ -31,9 +31,11 @@ class MyRequestsModel {
   String? urgency;
   String? createdAt;
   String? updatedAt;
+  Recipient? recipient;
   Hospital? hospital;
+  List<Donors>? donors;
 
-  MyRequestsModel(
+  MyRequestModel(
       {this.id,
       this.recipientId,
       this.hospitalId,
@@ -43,9 +45,11 @@ class MyRequestsModel {
       this.urgency,
       this.createdAt,
       this.updatedAt,
-      this.hospital});
+      this.recipient,
+      this.hospital,
+      this.donors});
 
-  MyRequestsModel.fromJson(Map<String, dynamic> json) {
+  MyRequestModel.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     recipientId = json['recipient_id'];
     hospitalId = json['hospital_id'];
@@ -55,9 +59,18 @@ class MyRequestsModel {
     urgency = json['urgency'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    recipient = json['recipient'] != null
+        ? new Recipient.fromJson(json['recipient'])
+        : null;
     hospital = json['hospital'] != null
         ? new Hospital.fromJson(json['hospital'])
         : null;
+    if (json['donors'] != null) {
+      donors = <Donors>[];
+      json['donors'].forEach((v) {
+        donors!.add(new Donors.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -71,23 +84,31 @@ class MyRequestsModel {
     data['urgency'] = this.urgency;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
+    if (this.recipient != null) {
+      data['recipient'] = this.recipient!.toJson();
+    }
     if (this.hospital != null) {
       data['hospital'] = this.hospital!.toJson();
+    }
+    if (this.donors != null) {
+      data['donors'] = this.donors!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
-class Hospital {
+class Recipient {
   int? id;
   String? name;
   String? email;
   Null? avatar;
   Location? location;
+  String? phone;
 
-  Hospital({this.id, this.name, this.email, this.avatar, this.location});
+  Recipient(
+      {this.id, this.name, this.email, this.avatar, this.location, this.phone});
 
-  Hospital.fromJson(Map<String, dynamic> json) {
+  Recipient.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     email = json['email'];
@@ -95,6 +116,7 @@ class Hospital {
     location = json['location'] != null
         ? new Location.fromJson(json['location'])
         : null;
+    phone = json['phone'];
   }
 
   Map<String, dynamic> toJson() {
@@ -106,6 +128,7 @@ class Hospital {
     if (this.location != null) {
       data['location'] = this.location!.toJson();
     }
+    data['phone'] = this.phone;
     return data;
   }
 }
@@ -151,6 +174,93 @@ class Location {
     data['district'] = this.district;
     data['region'] = this.region;
     data['country'] = this.country;
+    return data;
+  }
+}
+
+class Hospital {
+  int? id;
+  String? name;
+  String? email;
+  Location? location;
+
+  Hospital({this.id, this.name, this.email, this.location});
+
+  Hospital.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    email = json['email'];
+    location = json['location'] != null
+        ? new Location.fromJson(json['location'])
+        : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['name'] = this.name;
+    data['email'] = this.email;
+    if (this.location != null) {
+      data['location'] = this.location!.toJson();
+    }
+    return data;
+  }
+}
+
+class Donors {
+  int? id;
+  String? name;
+  String? email;
+  Null? avatar;
+  String? phone;
+  Pivot? pivot;
+
+  Donors({this.id, this.name, this.email, this.avatar, this.phone, this.pivot});
+
+  Donors.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    email = json['email'];
+    avatar = json['avatar'];
+    phone = json['phone'];
+    pivot = json['pivot'] != null ? new Pivot.fromJson(json['pivot']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['name'] = this.name;
+    data['email'] = this.email;
+    data['avatar'] = this.avatar;
+    data['phone'] = this.phone;
+    if (this.pivot != null) {
+      data['pivot'] = this.pivot!.toJson();
+    }
+    return data;
+  }
+}
+
+class Pivot {
+  int? bloodRequestId;
+  int? donorId;
+  String? createdAt;
+  String? updatedAt;
+
+  Pivot({this.bloodRequestId, this.donorId, this.createdAt, this.updatedAt});
+
+  Pivot.fromJson(Map<String, dynamic> json) {
+    bloodRequestId = json['blood_request_id'];
+    donorId = json['donor_id'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['blood_request_id'] = this.bloodRequestId;
+    data['donor_id'] = this.donorId;
+    data['created_at'] = this.createdAt;
+    data['updated_at'] = this.updatedAt;
     return data;
   }
 }

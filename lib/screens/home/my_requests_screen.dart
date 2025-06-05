@@ -1,5 +1,7 @@
 import 'dart:ui';
+import 'package:timeago/timeago.dart' as timeago;
 
+import 'package:bds/controllers/my_request_controller.dart';
 import 'package:bds/routes/route_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:bds/utils/app_colors.dart';
@@ -7,63 +9,79 @@ import 'package:bds/utils/app_text_styles.dart';
 import 'package:get/get.dart';
 import '../../widgets/hero_section.dart';
 
-class MyRequestsScreen extends StatelessWidget {
+class MyRequestsScreen extends StatefulWidget {
   const MyRequestsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> requests = [
-      {
-        'hospital': 'City Hospital',
-        'bloodType': 'O+',
-        'date': 'May 15, 2025',
-        'status': 'Pending',
-      },
-      {
-        'hospital': 'General Health Center',
-        'bloodType': 'A-',
-        'date': 'May 5, 2025',
-        'status': 'Approved',
-      },
-      {
-        'hospital': 'Red Cross Clinic',
-        'bloodType': 'B+',
-        'date': 'Apr 28, 2025',
-        'status': 'Fulfilled',
-      },
-    ];
+  State<MyRequestsScreen> createState() => _MyRequestsScreenState();
+}
 
+class _MyRequestsScreenState extends State<MyRequestsScreen> {
+  late MyRequestController myRequestController;
+
+  @override
+  void initState() {
+    super.initState();
+    myRequestController = Get.find<MyRequestController>();
+    myRequestController.getMyRequestsList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
-      body: CustomScrollView(
-        slivers: [
-          HeroSection(
-            title: 'My Requests',
-            subtitle: 'Track and manage your donation requests',
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildRequestCard(context, requests[index]),
-                childCount: requests.length,
+      body: GetBuilder<MyRequestController>(
+        builder: (controller) {
+          if (!controller.isLoaded) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final requests = controller.myRequestList;
+
+          return CustomScrollView(
+            slivers: [
+              HeroSection(
+                title: 'My Requests',
+                subtitle: 'Track and manage your donation requests',
               ),
-            ),
-          ),
-        ],
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _buildRequestCard(context, requests[index]),
+                    childCount: requests.length,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildRequestCard(BuildContext context, Map<String, dynamic> request) {
+  Widget _buildRequestCard(BuildContext context, dynamic request) {
+    final hospital = request.hospital?.name ?? 'Unknown Hospital';
+    final bloodType = request.bloodType ?? 'N/A';
+    final createdAt = request.createdAt;
+    String date = '';
+    if (createdAt != null && createdAt is String && createdAt.isNotEmpty) {
+      try {
+        final parsedDate = DateTime.parse(createdAt);
+        date = timeago.format(parsedDate);
+      } catch (e) {
+        date = createdAt;
+      }
+    }
+    final status = request.status ?? 'Pending';
+
     Color statusColor;
     IconData statusIcon;
-    switch (request['status']) {
-      case 'Approved':
+    switch (status.toLowerCase()) {
+      case 'matched':
         statusColor = Colors.orange;
         statusIcon = Icons.check_circle_outline;
         break;
-      case 'Fulfilled':
+      case 'fulfilled':
         statusColor = Colors.green;
         statusIcon = Icons.verified;
         break;
@@ -116,7 +134,7 @@ class MyRequestsScreen extends StatelessWidget {
                     const SizedBox(width: 14),
                     Expanded(
                       child: Text(
-                        request['hospital'],
+                        hospital,
                         style: AppTextStyles.bodyBold.copyWith(fontSize: 18),
                       ),
                     ),
@@ -132,7 +150,7 @@ class MyRequestsScreen extends StatelessWidget {
                           Icon(statusIcon, color: statusColor, size: 18),
                           const SizedBox(width: 6),
                           Text(
-                            request['status'],
+                            status,
                             style: AppTextStyles.bodyBold.copyWith(
                               color: statusColor,
                               fontSize: 13,
@@ -153,7 +171,7 @@ class MyRequestsScreen extends StatelessWidget {
                       style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
                     ),
                     Text(
-                      request['bloodType'],
+                      bloodType,
                       style: AppTextStyles.bodyBold.copyWith(
                         color: AppColors.primaryRed,
                         fontSize: 16,
@@ -167,7 +185,7 @@ class MyRequestsScreen extends StatelessWidget {
                     Icon(Icons.calendar_today, color: Colors.blueGrey, size: 18),
                     const SizedBox(width: 8),
                     Text(
-                      'Requested on ${request['date']}',
+                      'Requested on $date',
                       style: AppTextStyles.body.copyWith(color: Colors.blueGrey.shade700),
                     ),
                   ],
@@ -182,7 +200,7 @@ class MyRequestsScreen extends StatelessWidget {
                       style: AppTextStyles.whiteBody.copyWith(fontWeight: FontWeight.bold),
                     ),
                     onPressed: () {
-                      Get.toNamed(RouteHelper.getDonationProgress());
+                      Get.toNamed(RouteHelper.getDonationProgress(request.id));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryRed,

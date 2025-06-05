@@ -50,7 +50,7 @@ class RouteHelper {
   static String getCenters() => '$centers';
   static String getNotifications() => '$notifications';
   static String getRespond(int pageId) => '$respond?pageId=$pageId';
-  static String getDonationProgress() => '$donationProgress';
+  static String getDonationProgress(int requestId) => '$donationProgress?id=$requestId';
   static String getEvents() => '$events';
   static String getEventDetails(int pageId) => '$eventDetails?pageId=$pageId';
 

@@ -26,7 +26,8 @@ class RespondToRequestScreen extends StatelessWidget {
     print("Request Title is " + request.id.toString());
     // --- Example static data based on your model ---
     final confirmedDonors = request.donors?.length ?? 0;
-    final remaining = (request.quantity ?? 0) - confirmedDonors;
+    final requestQuantity = (request.quantity ?? 0) + confirmedDonors;
+    final remaining = requestQuantity  - confirmedDonors;
     final notes = 'Patient in critical condition. Immediate help required.';
 
     return Scaffold(
@@ -54,7 +55,7 @@ class RespondToRequestScreen extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 _buildHeader(request.bloodType, request.urgency, request.status),
                 const SizedBox(height: 18),
-                _buildProgressBar(request.quantity, confirmedDonors, remaining),
+                _buildProgressBar(requestQuantity, confirmedDonors, remaining),
                 const SizedBox(height: 24),
                 _buildCardSection(
                   child: _buildRecipientCard(request.recipient),
@@ -102,7 +103,7 @@ class RespondToRequestScreen extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -125,15 +126,14 @@ class RespondToRequestScreen extends StatelessWidget {
         children: [
           // Blood type badge
           Container(
-            width: 68,
-            height: 68,
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primaryRed.withOpacity(0.18),
-                  blurRadius: 14,
+                  color: AppColors.primaryRed.withOpacity(0.25),
                   offset: const Offset(0, 7),
                 ),
               ],
@@ -142,12 +142,12 @@ class RespondToRequestScreen extends StatelessWidget {
               child: Text(
                 bloodType,
                 style: AppTextStyles.heading.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryRed,
+                  fontWeight: FontWeight.w900,
                   fontSize: 32,
                   shadows: [
                     Shadow(
-                      color: AppColors.primaryRed.withOpacity(0.3),
+                      color: Colors.white,
                       blurRadius: 8,
                     ),
                   ],
@@ -155,26 +155,28 @@ class RespondToRequestScreen extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 28),
+          const SizedBox(width: 20),
           // Info column with chips stacked vertically
           Expanded(
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Chip(
-                  avatar: Icon(Icons.priority_high, color: urgencyColor, size: 18),
+                  padding: EdgeInsets.symmetric(horizontal: 6),
                   label: Text(
                     urgency,
-                    style: AppTextStyles.bodyBold.copyWith(color: urgencyColor),
+                    style: AppTextStyles.bodyBold.copyWith(color: urgencyColor, fontSize: 14),
                   ),
                   backgroundColor: urgencyColor.withOpacity(0.13),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(width: 4),
                 Chip(
+                  padding: EdgeInsets.symmetric(horizontal: 6),
                   label: Text(
                     status,
-                    style: AppTextStyles.bodyBold.copyWith(color: statusColor),
+                    style: AppTextStyles.bodyBold.copyWith(color: statusColor, fontSize: 14),
                   ),
                   backgroundColor: statusColor.withOpacity(0.18),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -388,23 +390,17 @@ class RespondToRequestScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Flexible(
-                  flex: 2,
                   child: Text(
                     step['label'],
-                    style: AppTextStyles.bodyBold,
-                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.bodyBold,                    
                     maxLines: 1,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  flex: 3,
                   child: Text(
                     step['time'],
-                    style: AppTextStyles.body.copyWith(color: Colors.grey[700]),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    textAlign: TextAlign.right,
+                    style: AppTextStyles.body.copyWith(color: Colors.grey[700]),                    maxLines: 1,
                   ),
                 ),
               ],

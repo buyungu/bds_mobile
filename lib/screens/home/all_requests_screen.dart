@@ -91,7 +91,7 @@ class _AllRequestsScreenState extends State<AllRequestsScreen> {
     Color statusColor;
     IconData statusIcon;
     switch (request.status?.toLowerCase()) {
-      case 'approved':
+      case 'matched':
         statusColor = Colors.orange;
         statusIcon = Icons.check_circle_outline;
         break;

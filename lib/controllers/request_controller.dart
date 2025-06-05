@@ -1,6 +1,4 @@
-import 'package:bds/data/repository/Donor_repo.dart';
 import 'package:bds/data/repository/request_repo.dart';
-import 'package:bds/models/donors_model.dart';
 import 'package:get/get.dart';
 
 import '../models/requests_model.dart';

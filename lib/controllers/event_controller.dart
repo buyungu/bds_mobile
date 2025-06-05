@@ -22,24 +22,23 @@ class EventController extends GetxController {
 
  
   Future<void> getEventsList() async {
-    Response response = await eventRepo.getEventsList(); 
+    Response response = await eventRepo.getEventsList();
     print("Event API status: ${response.statusCode}");
     print("Event API body: ${response.body}");
-    if (response.statusCode == 200) {
-      _eventList = [];
+
+    _eventList = [];
+    _isLoaded = true;
+
+    // Check if the response is a Map (JSON) or a String (HTML/error)
+    if (response.statusCode == 200 && response.body is Map) {
       try {
-        final data = response.body; // <-- FIXED: no jsonDecode
-        _eventList.addAll(Event.fromJson(data).events ?? []);
-        _isLoaded = true;
+        _eventList.addAll(Event.fromJson(response.body).events ?? []);
       } catch (e) {
         print("Event parsing error: $e");
-        _isLoaded = true;
       }
-      update();
     } else {
-      print("Error fetching events: ${response.statusText}");
-      _isLoaded = true;
-      update();
+      print("Error: Expected JSON but got something else (maybe HTML). Check your API endpoint and backend.");
     }
+    update();
   }
 }
