@@ -1,3 +1,5 @@
+import 'package:bds/controllers/hospital_controller.dart';
+import 'package:bds/models/hospitals_model.dart';
 import 'package:bds/routes/route_helper.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
@@ -6,32 +8,23 @@ import '../../widgets/hero_section.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
 
-class MainScreen extends StatelessWidget {
-  MainScreen({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
 
-  final List<Map<String, dynamic>> nearbyCenters = [
-  {
-    'name': 'City Hospital 1',
-    'distance': '2.1',
-    'latitude': -6.7924,
-    'longitude': 39.2083,
-  },
-  {
-    'name': 'City Hospital 2',
-    'distance': '4.2',
-    'latitude': -6.8000,
-    'longitude': 39.2500,
-  },
-  {
-    'name': 'City Hospital 3',
-    'distance': '6.3',
-    'latitude': -6.7700,
-    'longitude': 39.2200,
-  },
-];
+class _MainScreenState extends State<MainScreen> {
+  late HospitalController hospitalController;
 
-
+  @override
+  void initState() {
+    super.initState();
+    hospitalController = Get.find<HospitalController>();
+    hospitalController.getHospitals();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -190,78 +183,88 @@ class MainScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ListView.builder(
-                      padding: EdgeInsets.all(0),
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: nearbyCenters.length,
-                      itemBuilder: (context, index) {
-                        final center = nearbyCenters[index];
 
-                        return Container(
-                          margin: EdgeInsets.only(bottom: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 8,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: ListTile(
-                            contentPadding: EdgeInsets.all(12),
-                            leading: Container(
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryRed.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(
-                                Icons.local_hospital,
-                                color: AppColors.primaryRed,
-                              ),
-                            ),
-                            title: Text(
-                              center['name'],
-                              style: AppTextStyles.bodyBold,
-                            ),
-                            subtitle: Text(
-                              '${center['distance']} km away - Open 24/7',
-                              style: AppTextStyles.body,
-                            ),
-                            trailing: InkWell(
-                              onTap: () async {
-                                final lat = center['latitude'];
-                                final lng = center['longitude'];
-                                final url = Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
+                      GetBuilder<HospitalController>(
+                        builder: (controller) {
+                          if (!controller.isLoaded) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
 
-                                if (await canLaunchUrl(url)) {
-                                  await launchUrl(url, mode: LaunchMode.externalApplication);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Could not open map.')),
-                                  );
-                                }
-                              },
-                              child: Container(
+                          final List<HospitalModel> centers = controller.hospitalList;
+
+                          return ListView.builder(
+                            padding: EdgeInsets.all(0),
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: centers.length,
+                            itemBuilder: (context, index) {
+                              final center = centers[index];
+
+                              return Container(
+                                margin: EdgeInsets.only(bottom: 12),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryRed.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 8,
+                                      offset: Offset(0, 4),
+                                    ),
+                                  ],
                                 ),
-                                padding: EdgeInsets.all(8),
-                                child: Icon(
-                                  Icons.arrow_forward,
-                                  color: AppColors.primaryRed,
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.all(12),
+                                  leading: Container(
+                                    padding: EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryRed.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Icon(
+                                      Icons.local_hospital,
+                                      color: AppColors.primaryRed,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    center.name ?? 'Unknown',
+                                    style: AppTextStyles.bodyBold,
+                                  ),
+                                  subtitle: Text(
+                                    '${center.location?.address ?? ''}',
+                                    style: AppTextStyles.body,
+                                  ),
+                                  trailing: InkWell(
+                                    onTap: () async {
+                                      final url = Uri.parse(center.location?.url ?? '');
+
+                                      if (await canLaunchUrl(url)) {
+                                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Could not open map.')),
+                                        );
+                                      }
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryRed.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      padding: EdgeInsets.all(8),
+                                      child: Icon(
+                                        Icons.arrow_forward,
+                                        color: AppColors.primaryRed,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    )
+                              );
+                            },
+                          );
+                        },
+                      )
+
 
                     ],
                   )

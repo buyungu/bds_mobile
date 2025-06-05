@@ -1,5 +1,4 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
+// This file defines a simple response model with success status and message.
 class ResponseModel {
   bool _isSuccess;
   String _message;

@@ -101,7 +101,7 @@ class Recipient {
   int? id;
   String? name;
   String? email;
-  Null? avatar;
+  String? avatar;
   Location? location;
   String? phone;
 
@@ -211,7 +211,7 @@ class Donors {
   int? id;
   String? name;
   String? email;
-  Null? avatar;
+  String? avatar;
   String? phone;
   Pivot? pivot;
 

@@ -28,8 +28,8 @@ class EventModel {
   int? id;
   String? title;
   String? description;
-  Null? email;
-  Null? image;
+  String? email;
+  String? image;
   String? status;
   Location? location;
   String? eventDate;

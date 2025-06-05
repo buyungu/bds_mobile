@@ -7,7 +7,6 @@ import 'package:bds/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import '../../widgets/hero_section.dart';
 import 'package:get/get.dart';
-// import '../../app/theme/app_text_styles.dart';
 
 class EventsScreen extends StatefulWidget {
   const EventsScreen({super.key});
@@ -17,26 +16,37 @@ class EventsScreen extends StatefulWidget {
 }
 
 class _EventsScreenState extends State<EventsScreen> {
+  late EventController _eventController;
+
+  @override
+  void initState() {
+    super.initState();
+    _eventController = Get.find<EventController>();
+    _eventController.getEventsList(); // ✅ Call API here
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<EventController>(
-      init: Get.find<EventController>(),
-      builder: (eventController) {
-        if (!eventController.isLoaded) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (eventController.eventList.isEmpty) {
-          return const Center(child: Text("No events found."));
-        }
-        return Scaffold(
-          backgroundColor: Colors.white,
-          body: CustomScrollView(
-            slivers: [
-              const HeroSection(title: 'Upcoming Events', subtitle: 'Available events for blood donation drives'),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: GetBuilder<EventController>(
+        builder: (eventController) {
+          if (!eventController.isLoaded) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
+          if (eventController.eventList.isEmpty) {
+            return const Center(child: Text("No events found."));
+          }
+
+          return CustomScrollView(
+            slivers: [
+              const HeroSection(
+                title: 'Upcoming Events',
+                subtitle: 'Available events for blood donation drives',
+              ),
               SliverPadding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     Column(
@@ -46,76 +56,46 @@ class _EventsScreenState extends State<EventsScreen> {
                           'Upcoming Events',
                           style: AppTextStyles.subheading,
                         ),
-                       
-                        SizedBox(height: 24),
-                        GetBuilder<EventController>(builder: (events) {
-                          if (!events.isLoaded) {
-                            return Center(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(vertical: 32),
-                                child: CircularProgressIndicator(
-                                  color: AppColors.primaryRed,
-                                ),
-                              ),
-                            );
-                          }
-                          if (events.eventList == null || events.eventList.isEmpty) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 32),
-                              child: Center(
-                                child: Text(
-                                  'No events available.',
-                                  style: AppTextStyles.body,
-                                ),
-                              ),
-                            );
-                          }
-                          return ListView.builder(
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: events.eventList.length,
-                            itemBuilder: (context, index) {
-                              return _buildDonorCard(events.eventList[index], index);
-                            },
-                          );
-                        }),
+                        const SizedBox(height: 24),
+                        ListView.builder(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: eventController.eventList.length,
+                          itemBuilder: (context, index) {
+                            return _buildDonorCard(eventController.eventList[index], index);
+                          },
+                        ),
                       ],
                     ),
                   ]),
                 ),
               ),
             ],
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
-}
 
- 
-
-extension _EventsScreenStateDonorCard on _EventsScreenState {
   Widget _buildDonorCard(EventModel event, int index) {
     return Card(
       elevation: 4,
-      color: Colors.white, 
-      margin: EdgeInsets.only(bottom: 16),
+      color: Colors.white,
+      margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-                Text(
-                  event.title ?? 'Unknown',
-                  style: AppTextStyles.subheading.copyWith(fontSize: 18),
-                ),
-
-            SizedBox(height: 12),
+            Text(
+              event.title ?? 'Unknown',
+              style: AppTextStyles.subheading.copyWith(fontSize: 18),
+            ),
+            const SizedBox(height: 12),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -124,7 +104,7 @@ extension _EventsScreenStateDonorCard on _EventsScreenState {
                     icon: Icons.phone,
                     text: event.user?.phone ?? 'Unknown',
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   _buildInfoChip(
                     icon: Icons.location_on,
                     text: event.location?.name ?? 'Unknown',
@@ -132,25 +112,24 @@ extension _EventsScreenStateDonorCard on _EventsScreenState {
                 ],
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'Event Date: ${event.eventDate ?? 'N/A'}',
-              style: AppTextStyles.body.copyWith(
-                color: Colors.grey[600],
-              ),
+              style: AppTextStyles.body.copyWith(color: Colors.grey[600]),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: CustomButton(
-                    label: "View Details", 
+                    label: "View Details",
                     onPressed: () {
-                      Get.toNamed(RouteHelper.getEventDetails(index)); 
-                    })
-                )
+                      Get.toNamed(RouteHelper.getEventDetails(index));
+                    },
+                  ),
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -159,7 +138,7 @@ extension _EventsScreenStateDonorCard on _EventsScreenState {
 
   Widget _buildInfoChip({required IconData icon, required String text}) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(10),
@@ -168,7 +147,7 @@ extension _EventsScreenStateDonorCard on _EventsScreenState {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Icon(icon, color: AppColors.primaryRed, size: 16),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             text,
             style: AppTextStyles.body,
@@ -176,7 +155,6 @@ extension _EventsScreenStateDonorCard on _EventsScreenState {
           ),
         ],
       ),
-      
     );
   }
 }

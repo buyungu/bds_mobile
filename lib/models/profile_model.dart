@@ -21,7 +21,7 @@ class User {
   String? avatar;
   String? name;
   String? email;
-  Null? emailVerifiedAt;
+  String? emailVerifiedAt;
   String? phone;
   Location? location;
   String? role;

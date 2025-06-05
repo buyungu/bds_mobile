@@ -1,38 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:bds/controllers/profile_controller.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_constants.dart';
 import 'package:bds/widgets/custom_button.dart';
-import 'package:flutter/material.dart';
 
-// Simple User Model
-class User {
-  String imagePath;
-  String name;
-  String email;
-  String phone;
-  String bloodType;
-  String location;
-
-  User({
-    required this.imagePath,
-    required this.name,
-    required this.email,
-    required this.phone,
-    required this.bloodType,
-    required this.location,
-  });
-}
-
-// Dummy user (could replace with shared preferences logic)
-User dummyUser = User(
-  imagePath: AppConstants.BASE_URL+'images/wana/toto.jpg',
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  phone: '0757405770',
-  bloodType: 'A+',
-  location: 'Mataa shungashunga, Dar es Salaam 16103, Tanzania',
-);
-
-// Edit Profile Screen
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({Key? key}) : super(key: key);
 
@@ -41,213 +13,164 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  late User user;
+  late ProfileController _profileController;
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _bloodTypeController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    user = dummyUser;
+    _profileController = Get.find<ProfileController>();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    await _profileController.getProfile();
+
+    if (_profileController.profile != null) {
+      final profile = _profileController.profile!;
+      _nameController.text = profile.user?.name ?? '';
+      _emailController.text = profile.user?.email ?? '';
+      _phoneController.text = profile.user?.phone ?? '';
+      _bloodTypeController.text = profile.user?.bloodType ?? '';
+      _locationController.text = profile.user?.location?.address ?? '';
+    }
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text('Edit Profile')),
-        body: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          physics: BouncingScrollPhysics(),
-          children: [
-            // Profile Image
-            Center(
-              child: Stack(
-                children: [
-                  ClipOval(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Ink.image(
-                        image: NetworkImage(user.imagePath),
-                        fit: BoxFit.cover,
-                        width: 128,
-                        height: 128,
-                        child: InkWell(
-                          onTap: () async {
-                            // Handle image tap or edit here
-                          },
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _bloodTypeController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<ProfileController>(
+      builder: (controller) {
+        if (!controller.isLoaded) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(title: const Text('Edit Profile')),
+          body: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            physics: const BouncingScrollPhysics(),
+            children: [
+              // Profile Image
+              Center(
+                child: Stack(
+                  children: [
+                    ClipOval(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Ink.image(
+                          image: NetworkImage(
+                            AppConstants.BASE_URL + 'storage/' + controller.profile!.user!.avatar! ?? AppConstants.BASE_URL + 'images/wana/chiefton.jpg',
+                          ),
+                          fit: BoxFit.cover,
+                          width: 128,
+                          height: 128,
+                          child: InkWell(onTap: () {
+                            // Optional: implement image picker
+                          }),
                         ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 4,
-                    child: ClipOval(
-                      child: Container(
-                        padding: EdgeInsets.all(3),
-                        color: Colors.white,
-                        child: ClipOval(
-                          child: Container(
-                            padding: EdgeInsets.all(8),
-                            color: AppColors.primaryRed,
-                            child: Icon(
-                              Icons.add_a_photo,
-                              color: Colors.white,
-                              size: 20,
+                    Positioned(
+                      bottom: 0,
+                      right: 4,
+                      child: ClipOval(
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          color: Colors.white,
+                          child: ClipOval(
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              color: AppColors.primaryRed,
+                              child: const Icon(
+                                Icons.add_a_photo,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-            // Full Name
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: TextEditingController(text: user.name),
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.person, color: AppColors.primaryRed),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.primaryRed.withOpacity(0.5), width: 2),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onChanged: (name) => setState(() => user.name = name),
-                ),
-              ],
+              _buildTextField("Full Name", Icons.person, _nameController),
+              const SizedBox(height: 20),
+              _buildTextField("Email", Icons.email, _emailController),
+              const SizedBox(height: 20),
+              _buildTextField("Phone", Icons.phone, _phoneController),
+              const SizedBox(height: 20),
+              _buildTextField("Blood Type", Icons.bloodtype, _bloodTypeController),
+              const SizedBox(height: 20),
+              _buildTextField("Location", Icons.location_on, _locationController,
+                  suffixIcon: Icons.my_location),
+              const SizedBox(height: 20),
+            ],
+          ),
+          bottomNavigationBar: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            child: CustomButton(
+              label: "Update Info",
+              onPressed: () {
+                // TODO: Send updated data to backend
+              },
             ),
-            const SizedBox(height: 20),
+          ),
+        );
+      },
+    );
+  }
 
-            // Email
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: TextEditingController(text: user.email),
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.email, color: AppColors.primaryRed),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.primaryRed, width: 2),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onChanged: (email) => setState(() => user.email = email),
-                ),
-              ],
+  Widget _buildTextField(
+    String label,
+    IconData icon,
+    TextEditingController controller, {
+    IconData? suffixIcon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            prefixIcon: Icon(icon, color: AppColors.primaryRed),
+            suffixIcon: suffixIcon != null
+                ? Icon(suffixIcon, color: AppColors.primaryRed)
+                : null,
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.primaryRed, width: 2),
             ),
-            const SizedBox(height: 20),
-
-            // Phone
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Phone', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: TextEditingController(text: user.phone),
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.phone, color: AppColors.primaryRed),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.primaryRed, width: 2),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onChanged: (phone) => setState(() => user.phone = phone),
-                ),
-              ],
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(height: 20),
-
-            // Blood Type
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Blood Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: TextEditingController(text: user.bloodType),
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.bloodtype, color: AppColors.primaryRed),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.primaryRed, width: 2),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onChanged: (bloodType) => setState(() => user.bloodType = bloodType),
-                ),
-              ],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(height: 20),
-
-            // Location
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Location', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: TextEditingController(text: user.location),
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.location_on, color: AppColors.primaryRed),
-                    suffixIcon: Icon(Icons.my_location, color: AppColors.primaryRed),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.primaryRed, width: 2),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onChanged: (location) => setState(() => user.location = location),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            
-          ],
+          ),
         ),
-        bottomNavigationBar: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-        child: CustomButton(
-          label: "Update Info",
-          onPressed: () {
-          },
-        ),
-      ),
-      );
+      ],
+    );
+  }
 }
