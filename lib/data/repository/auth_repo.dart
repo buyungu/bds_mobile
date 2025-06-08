@@ -27,8 +27,8 @@ class AuthRepo {
     return sharedPreferences.getString(AppConstants.TOKEN);
   }
 
-  Future<bool> clearUserData() async {
-    await sharedPreferences.remove(AppConstants.TOKEN);
+  bool clearUserData() {
+    sharedPreferences.remove(AppConstants.TOKEN);
     apiClient.token = '';
     apiClient.updateHeader('');
     return true;

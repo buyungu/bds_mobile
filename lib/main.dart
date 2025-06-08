@@ -1,3 +1,4 @@
+import 'package:bds/controllers/donation_controller.dart';
 import 'package:bds/controllers/donor_controller.dart';
 import 'package:bds/controllers/event_controller.dart';
 import 'package:bds/controllers/hospital_controller.dart';
@@ -36,6 +37,10 @@ void main() async {
   );
   Get.put(
     HospitalController(hospitalRepo: Get.find()),
+    permanent: true,
+  );
+  Get.put(
+    DonationController(donationRepo: Get.find()),
     permanent: true,
   );
 

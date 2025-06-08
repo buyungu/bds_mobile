@@ -28,6 +28,7 @@ class RequestModel {
   String? bloodType;
   int? quantity;
   String? status;
+  bool? hasDonated;
   String? urgency;
   String? createdAt;
   String? updatedAt;
@@ -43,6 +44,7 @@ class RequestModel {
       this.bloodType,
       this.quantity,
       this.status,
+      this.hasDonated,
       this.urgency,
       this.createdAt,
       this.updatedAt,
@@ -57,6 +59,7 @@ class RequestModel {
     bloodType = json['blood_type'];
     quantity = json['quantity'];
     status = json['status'];
+    hasDonated = json['has_donated'];
     urgency = json['urgency'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
@@ -82,6 +85,7 @@ class RequestModel {
     data['blood_type'] = this.bloodType;
     data['quantity'] = this.quantity;
     data['status'] = this.status;
+    data['has_donated'] = this.hasDonated;
     data['urgency'] = this.urgency;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;

@@ -31,6 +31,7 @@ class MyRequestModel {
   String? urgency;
   String? createdAt;
   String? updatedAt;
+  bool? hasDonated;
   Recipient? recipient;
   Hospital? hospital;
   List<Donors>? donors;
@@ -45,6 +46,7 @@ class MyRequestModel {
       this.urgency,
       this.createdAt,
       this.updatedAt,
+      this.hasDonated,
       this.recipient,
       this.hospital,
       this.donors});
@@ -57,6 +59,7 @@ class MyRequestModel {
     quantity = json['quantity'];
     status = json['status'];
     urgency = json['urgency'];
+    hasDonated = json['has_donated'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     recipient = json['recipient'] != null
@@ -81,6 +84,7 @@ class MyRequestModel {
     data['blood_type'] = this.bloodType;
     data['quantity'] = this.quantity;
     data['status'] = this.status;
+    data['has_donated'] = this.hasDonated;
     data['urgency'] = this.urgency;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;

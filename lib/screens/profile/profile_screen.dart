@@ -1,4 +1,6 @@
+import 'package:bds/controllers/auth_controller.dart';
 import 'package:bds/controllers/profile_controller.dart';
+import 'package:bds/routes/route_helper.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_constants.dart';
 import 'package:bds/widgets/custom_button.dart';
@@ -138,7 +140,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: CustomButton(
           label: "Logout",
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/login');
+            Get.find<AuthController>().clearUserData();
+            Get.offNamed(RouteHelper.getInitial());
           },
         ),
       ),

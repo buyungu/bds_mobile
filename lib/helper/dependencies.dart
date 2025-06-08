@@ -1,4 +1,5 @@
 import 'package:bds/controllers/auth_controller.dart';
+import 'package:bds/controllers/donation_controller.dart';
 import 'package:bds/controllers/donor_controller.dart';
 import 'package:bds/controllers/event_controller.dart';
 import 'package:bds/controllers/hospital_controller.dart';
@@ -8,6 +9,7 @@ import 'package:bds/controllers/request_controller.dart';
 import 'package:bds/data/api/api_client.dart';
 import 'package:bds/data/repository/Donor_repo.dart';
 import 'package:bds/data/repository/auth_repo.dart';
+import 'package:bds/data/repository/donation_repo.dart';
 import 'package:bds/data/repository/event_repo.dart';
 import 'package:bds/data/repository/hospital_repo.dart';
 import 'package:bds/data/repository/my_request_repo.dart';
@@ -33,6 +35,7 @@ Future<void> init() async {
   Get.lazyPut(() => RequestRepo(apiClient: Get.find()));
   Get.lazyPut(() => MyRequestRepo(apiClient: Get.find()));
   Get.lazyPut(() => HospitalRepo(apiClient: Get.find()));
+  Get.lazyPut(() => DonationRepo(apiClient: Get.find()));
 
   // Controllers
   Get.lazyPut(() => AuthController(authRepo: Get.find()));
@@ -41,4 +44,6 @@ Future<void> init() async {
   Get.lazyPut(() => DonorController(donorRepo: Get.find()));
   Get.lazyPut(() => RequestController(requestRepo: Get.find()));
   Get.lazyPut(() => MyRequestController(myRequestRepo: Get.find()));
-  Get.lazyPut(() => HospitalController(hospitalRepo: Get.find()));}
+  Get.lazyPut(() => HospitalController(hospitalRepo: Get.find()));
+  Get.lazyPut(() => DonationController(donationRepo: Get.find()));
+}

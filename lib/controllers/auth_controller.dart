@@ -37,5 +37,7 @@ class AuthController extends GetxController implements GetxService{
     return responseModel;
   }
 
-  
+  bool clearUserData(){
+    return authRepo.clearUserData();
+  }
 }

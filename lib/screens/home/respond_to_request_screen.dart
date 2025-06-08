@@ -1,3 +1,4 @@
+import 'package:bds/controllers/donation_controller.dart';
 import 'package:bds/controllers/request_controller.dart';
 import 'package:bds/models/requests_model.dart';
 import 'package:flutter/material.dart';
@@ -72,15 +73,55 @@ class RespondToRequestScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 CustomButton(
-                  label: remaining > 0 ? 'Donate Now' : 'All Pints Collected!',
-                  isPrimary: remaining > 0,
-                  onPressed: remaining > 0
-                      ? () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Thank you! You’ve responded to the request.')),
+                  label: request.hasDonated
+                      ? 'Already Donated'
+                      : remaining > 0
+                          ? 'Donate Now'
+                          : 'All Pints Collected!',
+                  isPrimary: remaining > 0 && !request.hasDonated,
+                  onPressed: (remaining > 0 && !request.hasDonated)
+                      ? () async {
+                          final donationController = Get.find<DonationController>();
+
+                          // Show loading UI
+                          Get.dialog(
+                            Center(child: CircularProgressIndicator()),
+                            barrierDismissible: false,
                           );
+
+                          try {
+                            final response = await donationController.donate(request.id);
+                            Get.back(); // Remove loading dialog
+
+                            if (response.success) {
+                              Get.snackbar(
+                                'Success',
+                                'Thank you! You’ve responded to the request.',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.green,
+                                colorText: Colors.white,
+                              );
+                            } else {
+                              Get.snackbar(
+                                'Failed',
+                                response.message,
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.red,
+                                colorText: Colors.white,
+                              );
+                            }
+                          } catch (e) {
+                            Get.back(); // Remove loading dialog
+                            Get.snackbar(
+                              'Error',
+                              'Something went wrong. Try again later.',
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                          }
                         }
-                      : () {},
+                      : null, // Disable button if condition not met
                 ),
                 const SizedBox(height: 32),
               ]),

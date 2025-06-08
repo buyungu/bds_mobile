@@ -11,6 +11,8 @@ class AppConstants {
 
   static const String LOGIN_URL = "api/login";
   static const String USER_URL = "api/profile";
+  static String donateUrl(int bloodRequestId) => "api/donate/$bloodRequestId";
+
 
   static const String TOKEN = "dBtoken";
 
