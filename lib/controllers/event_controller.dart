@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:bds/data/repository/event_repo.dart';
 import 'package:bds/models/events_model.dart';
 import 'package:get/get.dart';
@@ -42,4 +43,62 @@ class EventController extends GetxController {
 
     update();
   }
+
+  Future<void> enrollToEvent(int eventId) async {
+  final response = await eventRepo.enrollToEvent(eventId);
+
+  if (response.statusCode == 201 || response.statusCode == 200) {
+    Get.snackbar(
+      "Success",
+       "You have been enrolled",
+      backgroundColor: Colors.green,
+      snackPosition: SnackPosition.BOTTOM,
+      colorText: Colors.white,
+      duration: Duration(seconds: 10),
+      margin: EdgeInsets.all(10),
+      borderRadius: 8,
+    );
+  } else {
+    Get.snackbar(
+       "Error",
+       response.body['message'] ?? "Could not enroll",
+      backgroundColor: Colors.red,
+      snackPosition: SnackPosition.BOTTOM,
+      colorText: Colors.white,
+      duration: Duration(seconds: 10),
+      margin: EdgeInsets.all(10),
+      borderRadius: 8,
+    );
+  }
+}
+
+Future<void> unenrollFromEvent(int enrollmentId) async {
+  final response = await eventRepo.unenrollFromEvent(enrollmentId);
+
+  if (response.statusCode == 200 || response.statusCode == 201) {
+    Get.snackbar(
+      "Success",
+      "You have been unenrolled",
+      backgroundColor: Colors.green,
+      snackPosition: SnackPosition.BOTTOM,
+      colorText: Colors.white,
+      duration: Duration(seconds: 10),
+      margin: EdgeInsets.all(10),
+      borderRadius: 8,
+    );
+  } else {
+    Get.snackbar(
+      "Error",
+      response.body['message'] ?? "Could not unenroll",
+      backgroundColor: Colors.red,
+      snackPosition: SnackPosition.BOTTOM,
+      colorText: Colors.white,
+      duration: Duration(seconds: 10),
+      margin: EdgeInsets.all(10),
+      borderRadius: 8,
+    );
+  }
+}
+
+
 }

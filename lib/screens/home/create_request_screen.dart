@@ -1,93 +1,96 @@
+import 'package:bds/controllers/hospital_controller.dart';
+import 'package:bds/controllers/request_blood_controller.dart';
+import 'package:bds/models/request_blood_model.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/hero_section.dart';
-// import '../../app/theme/app_text_styles.dart';
 
 class CreateRequestScreen extends StatefulWidget {
-  const CreateRequestScreen({super.key});
+  const CreateRequestScreen({Key? key}) : super(key: key);
 
   @override
   State<CreateRequestScreen> createState() => _CreateRequestScreenState();
 }
 
 class _CreateRequestScreenState extends State<CreateRequestScreen> {
-  String? selectedBloodGroup;
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _hospitalController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _notesController = TextEditingController();
 
-  final List<String> bloodTypes = [
-    'A+',
-    'A-',
-    'B+',
-    'B-',
-    'AB+',
-    'AB-',
-    'O+',
-    'O-',
-  ];
+  // controllers
+  final _quantityCtrl = TextEditingController();
+  final _notesCtrl = TextEditingController();
+
+  // GetX controllers
+  final hospitalController = Get.find<HospitalController>();
+  final requestBloodController = Get.find<RequestBloodController>();
+
+  // selections
+  String? selectedHospitalId;
+  String? selectedBloodGroup;
+  String? selectedUrgency;
+
+  final bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  final urgencies = ['low', 'medium', 'high'];
+
+  @override
+  void initState() {
+    super.initState();
+    hospitalController.getHospitals(); 
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
-          const HeroSection(title: 'Request Blood Donation ', subtitle: 'Ask for blood Dontions'),
-
+          const HeroSection(
+            title: 'Request Blood Donation',
+            subtitle: 'Ask for blood donations',
+          ),
           SliverPadding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Select blood type you need",
-                      style: AppTextStyles.subheading,
-                    ),
-                    SizedBox(height: 16,),
+                    // 1) Blood type grid
+                    Text("Select blood type you need", style: AppTextStyles.subheading),
+                    const SizedBox(height: 16),
                     GridView.builder(
                       padding: EdgeInsets.zero,
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 4,
                         childAspectRatio: 1,
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
                       ),
                       itemCount: bloodTypes.length,
-                      itemBuilder: (context, index) {
+                      itemBuilder: (_, i) {
+                        final bt = bloodTypes[i];
+                        final selected = bt == selectedBloodGroup;
                         return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedBloodGroup = bloodTypes[index];
-                            });
-                          },
+                          onTap: () => setState(() => selectedBloodGroup = bt),
                           child: AnimatedContainer(
-                            duration: Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 300),
                             decoration: BoxDecoration(
-                              color: selectedBloodGroup == bloodTypes[index]
-                                  ? AppColors.primaryRed
-                                  : Colors.white,
+                              color: selected ? AppColors.primaryRed : Colors.white,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: selectedBloodGroup == bloodTypes[index]
-                                    ? AppColors.primaryRed
-                                    : Colors.grey.shade400,
+                                color: selected ? AppColors.primaryRed : Colors.grey.shade400,
                               ),
                             ),
                             child: Center(
                               child: Text(
-                                bloodTypes[index],
+                                bt,
                                 style: AppTextStyles.body.copyWith(
                                   fontWeight: FontWeight.w600,
-                                  color: selectedBloodGroup == bloodTypes[index]
-                                      ? Colors.white
-                                      : AppColors.textDark,
+                                  color: selected ? Colors.white : AppColors.textDark,
                                 ),
                               ),
                             ),
@@ -95,50 +98,101 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
                         );
                       },
                     ),
-                    SizedBox(height: 20),
+
+                    const SizedBox(height: 24),
                     Form(
                       key: _formKey,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          SizedBox(height: 20,),
-                          _buildTextFormField(
-                            controller: _hospitalController,
-                            label: "Hospital Name",
-                            icon: Icons.local_hospital,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter the hospital name';
+                          // 2) Hospital dropdown
+                          GetBuilder<HospitalController>(
+                            builder: (_) {
+                              if (!hospitalController.isLoaded) {
+                                return const Center(child: CircularProgressIndicator());
                               }
+                              return DropdownButtonFormField<String>(
+                                value: selectedHospitalId,
+                                decoration: InputDecoration(
+                                  labelText: 'Select Hospital',
+                                  prefixIcon: Icon(Icons.local_hospital, color: AppColors.primaryRed),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(color: AppColors.primaryRed),
+                                  ),
+                                ),
+                                items: hospitalController.hospitalList.map((h) {
+                                  return DropdownMenuItem(
+                                    value: h.id.toString(),
+                                    child: Text(h.name ?? 'Unknown Hospital'),                                  
+                                  );
+                                }).toList(),
+                                onChanged: (val) => setState(() => selectedHospitalId = val),
+                                validator: (v) => v == null ? 'Please select a hospital' : null,
+                              );
+                            },
+                          ),
+
+                          const SizedBox(height: 16),
+                          // 3) Urgency dropdown
+                          DropdownButtonFormField<String>(
+                            value: selectedUrgency,
+                            decoration: InputDecoration(
+                              labelText: 'Select Urgency',
+                              prefixIcon: Icon(Icons.priority_high, color: AppColors.primaryRed),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: AppColors.primaryRed),
+                              ),
+                            ),
+                            items: urgencies.map((u) {
+                              return DropdownMenuItem(value: u, child: Text(u.capitalizeFirst!));
+                            }).toList(),
+                            onChanged: (val) => setState(() => selectedUrgency = val),
+                            validator: (v) => v == null ? 'Please select urgency' : null,
+                          ),
+
+                          const SizedBox(height: 16),
+                          // 4) Quantity field
+                          TextFormField(
+                            controller: _quantityCtrl,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: 'Quantity (pints)',
+                              prefixIcon: Icon(Icons.format_list_numbered, color: AppColors.primaryRed),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: AppColors.primaryRed),
+                              ),
+                            ),
+                            validator: (v) {
+                              if (v == null || v.isEmpty) return 'Enter quantity';
+                              if (int.tryParse(v) == null) return 'Must be a number';
                               return null;
                             },
                           ),
-                          SizedBox(height: 20),
-                          _buildTextFormField(
-                            controller: _locationController,
-                            label: "location",
-                            icon: Icons.location_on,
-                            suffixIcon: Icons.my_location,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your location';
-                              }
-                              return null;
-                            },
-                          ),
-                          SizedBox(height: 20,),
-                          _buildTextFormField(
-                            controller: _notesController,
-                            label: "Notes",
-                            icon: Icons.note,
+
+                          const SizedBox(height: 16),
+                          // 5) Notes (optional)
+                          TextFormField(
+                            controller: _notesCtrl,
                             maxLines: 3,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter any additional notes';
-                              }
-                              return null;
-                            },
-                          ),                          
+                            decoration: InputDecoration(
+                              labelText: 'Notes (optional)',
+                              prefixIcon: Icon(Icons.note, color: AppColors.primaryRed),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: AppColors.primaryRed),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -149,57 +203,54 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
           ),
         ],
       ),
+
+      // Submit button
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: CustomButton(
           label: 'Submit Request',
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              // Handle form submission
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Donation request submitted successfully!')),
+          onPressed: () async {
+            if (_formKey.currentState!.validate() && selectedBloodGroup != null) {
+              final model = RequestBloodModel(
+                id: 0,
+                hospitalId: int.parse(selectedHospitalId!),
+                bloodType: selectedBloodGroup!,
+                quantity: int.parse(_quantityCtrl.text),
+                urgency: selectedUrgency!,
+                status: 'pending',
               );
+
+              bool isSuccess = await requestBloodController.requestBlood(model);
+              if (isSuccess) {
+                Get.snackbar(
+                  'Success',
+                  'Blood request submitted successfully.',
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                );
+
+                // Optionally clear form or navigate away
+                _formKey.currentState!.reset();
+                setState(() {
+                  selectedBloodGroup = null;
+                  selectedHospitalId = null;
+                  selectedUrgency = null;
+                });
+              } else {
+                Get.snackbar(
+                  'Error',
+                  'Failed to submit blood request.',
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                );
+              }
+            } else if (selectedBloodGroup == null) {
+              Get.snackbar('Error', 'Please select a blood type');
             }
           },
+
         ),
       ),
     );
   }
 }
-
-Widget _buildTextFormField({
-  required TextEditingController controller,
-  required String label,
-  required IconData icon,
-  IconData? suffixIcon,
-  int maxLines = 1,
-  String? Function(String?)? validator,
-}) {
-  return TextFormField(
-    controller: controller,
-    maxLines: maxLines,
-    decoration: InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon, color: AppColors.primaryRed,),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide:BorderSide(color: Colors.grey.shade400)
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.primaryRed)
-      ),
-      suffixIcon: 
-        suffixIcon != null
-          ? IconButton(
-              onPressed: () {
-                // Some codes
-              }, 
-              icon: Icon(suffixIcon, color: AppColors.primaryRed)
-            )
-          : null,
-    ),
-    validator: validator,
-  );
-}
-

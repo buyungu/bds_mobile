@@ -36,6 +36,8 @@ class EventModel {
   int? createdBy;
   String? createdAt;
   String? updatedAt;
+  bool? isEnrolled;
+  int? enrollmentId;
   User? user;
 
   EventModel(
@@ -50,6 +52,8 @@ class EventModel {
       this.createdBy,
       this.createdAt,
       this.updatedAt,
+      this.isEnrolled,
+      this.enrollmentId,
       this.user});
 
   EventModel.fromJson(Map<String, dynamic> json) {
@@ -66,6 +70,8 @@ class EventModel {
     createdBy = json['created_by'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    isEnrolled = json['is_enrolled'];
+    enrollmentId = json['enrollment_id'];
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
   }
 
@@ -84,6 +90,8 @@ class EventModel {
     data['created_by'] = this.createdBy;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
+    data['is_enrolled'] = this.isEnrolled;
+    data['enrollment_id'] = this.enrollmentId;
     if (this.user != null) {
       data['user'] = this.user!.toJson();
     }

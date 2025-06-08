@@ -10,4 +10,12 @@ class EventRepo extends GetxService {
   Future<Response> getEventsList() async {
     return await apiClient.getData(AppConstants.EVENT_URL);
   }
+
+  Future<Response> enrollToEvent(int eventId) async {
+    return await apiClient.postData(AppConstants.enrollUrl(eventId), {});
+  }
+
+  Future<Response> unenrollFromEvent(int enrollmentId) async {
+    return await apiClient.deleteData(AppConstants.unenrollUrl(enrollmentId));
+  }
 }

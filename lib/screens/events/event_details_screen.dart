@@ -29,6 +29,29 @@ class EventDetailsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // ✅ Already enrolled card
+              if (event.isEnrolled)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.green),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "You are already enrolled in this event.",
+                          style: TextStyle(color: Colors.green[800]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -122,8 +145,32 @@ class EventDetailsScreen extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: 8,),
-                            CustomButton(label: "Enroll to an event", onPressed: (){})
-                            ],
+                            // ✅ Conditional button
+                    CustomButton(
+                      label: event.isEnrolled
+                          ? "Unenroll from event"
+                          : "Enroll to event",
+                      onPressed: () async {
+                        final controller = Get.find<EventController>();
+
+                        if (event.isEnrolled) {
+                          await controller.unenrollFromEvent(event.enrollmentId);
+                        } else {
+                          await controller.enrollToEvent(event.id);
+                        }
+
+                        await controller.getEventsList(); // refresh list
+
+                        // Delay navigation to allow snackbar to show
+                        Future.delayed(Duration(seconds: 3), () {
+                          Get.back();
+                        });
+                      },
+
+                      isPrimary: !event.isEnrolled,
+                      
+                    ),                            
+                    ],
                           ),
                       ),
                     ],

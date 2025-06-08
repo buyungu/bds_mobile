@@ -4,6 +4,7 @@ import 'package:bds/controllers/event_controller.dart';
 import 'package:bds/controllers/hospital_controller.dart';
 import 'package:bds/controllers/my_request_controller.dart';
 import 'package:bds/controllers/profile_controller.dart';
+import 'package:bds/controllers/request_blood_controller.dart';
 import 'package:bds/controllers/request_controller.dart';
 import 'package:bds/routes/route_helper.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +42,10 @@ void main() async {
   );
   Get.put(
     DonationController(donationRepo: Get.find()),
+    permanent: true,
+  );
+  Get.put(
+    RequestBloodController(requestBloodRepo: Get.find()),
     permanent: true,
   );
 

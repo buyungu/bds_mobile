@@ -47,4 +47,18 @@ class ApiClient extends GetConnect implements GetxService {
       return Response(statusCode: 1, statusText: e.toString());
     }
   }
+
+  Future<Response> deleteData(String uri) async {
+    try {
+      final response = await delete(uri, headers: _mainHeaders);
+      return response;
+    } catch (e) {
+      return Response(
+        statusCode: 500,
+        statusText: 'Error occurred while deleting data',
+        body: e.toString(),
+      );
+    }
+  }
+
 }
