@@ -1,9 +1,13 @@
+import 'package:bds/controllers/auth_controller.dart';
+import 'package:bds/controllers/location_controller.dart';
+import 'package:bds/models/register_boby_model.dart';
 import 'package:bds/routes/route_helper.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
-import 'package:flutter/material.dart';
 import 'package:bds/widgets/custom_button.dart';
 import 'package:bds/widgets/hero_section.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -15,10 +19,54 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _bloodTypeController = TextEditingController();
+
   bool _obscurePassword = true;
+
+  final authController = Get.find<AuthController>();
+  final locationController = Get.find<LocationController>();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _bloodTypeController.dispose();
+    super.dispose();
+  }
+
+  void _register() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final location = locationController.selectedLocation.value;
+
+    if (location == null) {
+      Get.snackbar('Error', 'Please select a location');
+      return;
+    }
+
+    final registerBody = RegisterBoby(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      phone: _phoneController.text.trim(),
+      password: _passwordController.text.trim(),
+      bloodType: _bloodTypeController.text.trim(),
+      location: location,
+    );
+
+    final result = await authController.register(registerBody);
+    if (result.isSuccess) {
+      Get.offAllNamed(RouteHelper.getInitial());
+    } else {
+      Get.snackbar("Registration Failed", result.message);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,12 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _nameController,
                         label: "Name",
                         icon: Icons.person,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your name';
-                          }
-                          return null;
-                        },
+                        validator: _requiredValidator,
                       ),
                       const SizedBox(height: 20),
                       _buildTextFormField(
@@ -53,15 +96,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         label: "Email",
                         icon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Enter a valid email';
-                          }
-                          return null;
-                        },
+                        validator: _emailValidator,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildTextFormField(
+                        controller: _phoneController,
+                        label: "Phone",
+                        icon: Icons.phone,
+                        keyboardType: TextInputType.phone,
+                        validator: _requiredValidator,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildTextFormField(
+                        controller: _bloodTypeController,
+                        label: "Blood Type",
+                        icon: Icons.bloodtype,
+                        validator: _requiredValidator,
                       ),
                       const SizedBox(height: 20),
                       _buildTextFormField(
@@ -81,24 +131,58 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          if (value.length < 3) {
+                          if (value == null || value.length < 3) {
                             return 'Password must be at least 3 characters';
                           }
                           return null;
                         },
                       ),
-                      const SizedBox(height: 40),
-                      CustomButton(
-                        label: 'Register',
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            Get.toNamed(RouteHelper.getLogin());
-                          }
+                      const SizedBox(height: 20),
+                      TypeAheadField<Map<String, dynamic>>(
+                        suggestionsCallback: (pattern) async {
+                          return await Get.find<LocationController>().getPlaceSuggestions(pattern);
+                        },
+                        itemBuilder: (context, suggestion) {
+                          return ListTile(
+                            title: Text(suggestion['description']),
+                          );
+                        },
+                        onSelected: (suggestion) async {
+                          await Get.find<LocationController>().selectPlace(suggestion['place_id']);
+                        },
+                        builder: (context, controller, focusNode) {
+                          controller.text = Get.find<LocationController>().locationTextController.text;
+                          controller.selection = TextSelection.fromPosition(
+                            TextPosition(offset: controller.text.length),
+                          );
+
+                          return TextField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            decoration: InputDecoration(
+                              labelText: 'Location',
+                               prefixIcon: Icon(Icons.location_on, color: AppColors.primaryRed),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: AppColors.primaryRed),
+                              ),
+                            ),
+                            onChanged: (value) {
+                              Get.find<LocationController>().locationTextController.text = value;
+                            },
+                          );
                         },
                       ),
+                      const SizedBox(height: 32),
+                      GetBuilder<AuthController>(builder: (controller) {
+                        return CustomButton(
+                          label: controller.isLoading ? 'Registering...' : 'Register',
+                          onPressed: _register,
+                        );
+                      }),
                       const SizedBox(height: 20),
                       TextButton(
                         onPressed: () {
@@ -140,7 +224,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         prefixIcon: Icon(icon, color: AppColors.primaryRed),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade400),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -150,5 +233,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       validator: validator,
     );
+  }
+
+  String? _requiredValidator(String? value) {
+    if (value == null || value.isEmpty) return 'This field is required';
+    return null;
+  }
+
+  String? _emailValidator(String? value) {
+    if (value == null || value.isEmpty) return 'Please enter your email';
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Enter a valid email';
+    return null;
   }
 }

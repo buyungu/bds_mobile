@@ -1,4 +1,5 @@
 import 'package:bds/data/repository/auth_repo.dart';
+import 'package:bds/models/register_boby_model.dart';
 import 'package:bds/models/response_model.dart';
 import 'package:get/get.dart';
 import 'package:bds/models/login_body_model.dart';
@@ -30,6 +31,32 @@ class AuthController extends GetxController implements GetxService{
       }
     } else {
       print('Login failed: ${response.statusText}');
+      responseModel = ResponseModel(false, response.statusText!);
+    }
+    _isLoading=false;
+    update();
+    return responseModel;
+  }
+
+
+  Future<ResponseModel> register(RegisterBoby registerBody) async {
+    _isLoading=true;
+    Response response = await authRepo.register(registerBody);
+    late ResponseModel responseModel;
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print('Register response: ${response.body}');
+      final token = response.body["token"];
+      if (token != null) {
+        await authRepo.saveUserToken(token);
+        Get.find<ApiClient>().updateHeader(token); // <-- Add this line
+        print('Saved token: $token');
+        responseModel = ResponseModel(true, token);
+      } else {
+        print('No token found in response!');
+        responseModel = ResponseModel(false, 'No token in response');
+      }
+    } else {
+      print('Register failed: ${response.statusText}');
       responseModel = ResponseModel(false, response.statusText!);
     }
     _isLoading=false;
