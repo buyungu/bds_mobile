@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "587215215436",
+    "project_id": "bdsf-fc262",
+    "storage_bucket": "bdsf-fc262.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:587215215436:android:d9f6b51a6a3ee3799fcde9",
+        "android_client_info": {
+          "package_name": "com.example.bds"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxaQC95QRCH3fOKaP6TvzAHnLtU1c9Ez8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

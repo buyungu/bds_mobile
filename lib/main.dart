@@ -6,15 +6,37 @@ import 'package:bds/controllers/my_request_controller.dart';
 import 'package:bds/controllers/profile_controller.dart';
 import 'package:bds/controllers/request_blood_controller.dart';
 import 'package:bds/controllers/request_controller.dart';
+import 'package:bds/helper/notification_helper.dart';
 import 'package:bds/routes/route_helper.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'helper/dependencies.dart' as dep;
 
-void main() async {
+Future<dynamic> myBackgroundMessageHandler(RemoteMessage message) async{
+  print("onBackground: ${message.notification?.title}/${message.notification?.body}/${message.notification?.titleLocKey}");
+}
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   await dep.init();
 
+  try {
+    if (GetPlatform.isMobile) {
+      final RemoteMessage? remoteMessage = await FirebaseMessaging.instance.getInitialMessage();
+      await NotificationHelper.initialize(flutterLocalNotificationsPlugin);
+      FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print(e.toString());
+    }
+  }
   // Register your controller permanently
   Get.put(
     ProfileController(profileRepo: Get.find()), 

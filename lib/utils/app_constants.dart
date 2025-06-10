@@ -20,4 +20,8 @@ class AppConstants {
 
   static const String TOKEN = "dBtoken";
 
+  // Firebase Device token
+    static const String TOKEN_URL = "api/save-fcm-token";
+
+
 }

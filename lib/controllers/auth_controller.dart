@@ -1,6 +1,8 @@
 import 'package:bds/data/repository/auth_repo.dart';
 import 'package:bds/models/register_boby_model.dart';
 import 'package:bds/models/response_model.dart';
+import 'package:bds/utils/app_constants.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:bds/models/login_body_model.dart';
 import 'package:bds/data/api/api_client.dart';
@@ -67,4 +69,9 @@ class AuthController extends GetxController implements GetxService{
   bool clearUserData(){
     return authRepo.clearUserData();
   }
+
+  Future<void> updateToken() async {
+    await authRepo.updateToken();
+  }
+
 }

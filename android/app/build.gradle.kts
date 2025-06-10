@@ -1,11 +1,13 @@
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 dependencies {
     // other dependencies...
+    implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

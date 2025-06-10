@@ -1,3 +1,4 @@
+import 'package:bds/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
+    Get.find<AuthController>().updateToken(); 
     _checkToken();
   }
 

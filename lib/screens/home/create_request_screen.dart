@@ -1,3 +1,4 @@
+import 'package:bds/controllers/auth_controller.dart';
 import 'package:bds/controllers/hospital_controller.dart';
 import 'package:bds/controllers/request_blood_controller.dart';
 import 'package:bds/models/request_blood_model.dart';
@@ -211,6 +212,7 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
           label: 'Submit Request',
           onPressed: () async {
             if (_formKey.currentState!.validate() && selectedBloodGroup != null) {
+              Get.find<AuthController>().updateToken(); 
               final model = RequestBloodModel(
                 id: 0,
                 hospitalId: int.parse(selectedHospitalId!),
