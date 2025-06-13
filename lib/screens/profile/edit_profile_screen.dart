@@ -55,11 +55,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return GetBuilder<ProfileController>(
       builder: (controller) {
-        if (!controller.isLoaded) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+        if (!controller.isLoaded || controller.profile == null || controller.profile!.user == null) {
+          return const Center(child: CircularProgressIndicator());
         }
+        final user = controller.profile!.user!;
 
         return Scaffold(
           appBar: AppBar(title: const Text('Edit Profile')),
@@ -76,7 +75,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         color: Colors.transparent,
                         child: Ink.image(
                           image: NetworkImage(
-                            AppConstants.BASE_URL + 'storage/' + controller.profile!.user!.avatar! ?? AppConstants.BASE_URL + 'images/wana/chiefton.jpg',
+                            AppConstants.BASE_URL + 'storage/' + user.avatar! ?? AppConstants.BASE_URL + 'images/wana/chiefton.jpg',
                           ),
                           fit: BoxFit.cover,
                           width: 128,

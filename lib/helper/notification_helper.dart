@@ -55,7 +55,7 @@ class NotificationHelper {
       contentTitle: msg.notification!.title!, htmlFormatContentTitle: true,
     );
     AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
-      'channel_id_2', 'bds', importance: Importance.high,
+      'channel_id_4', 'bds', importance: Importance.high,
       styleInformation: bigTextStyleInformation, priority: Priority.high,
       playSound: true,
     );

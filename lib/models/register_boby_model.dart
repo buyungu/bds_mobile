@@ -57,3 +57,33 @@ class Location {
         "country": country,
       };
 }
+
+// Define _selectedBloodType or replace it with a valid variable/value
+final String? selectedBloodType = ''; // Replace with actual value or logic
+
+// Example values for demonstration; replace with actual data as needed
+final String name = 'John Doe';
+final String email = 'john@example.com';
+final String phone = '1234567890';
+final String password = 'password123';
+final Location location = Location(
+  lat: 0.0,
+  lng: 0.0,
+  address: '123 Main St',
+  name: 'Home',
+  url: 'http://example.com',
+  district: 'District',
+  region: 'Region',
+  country: 'Country',
+);
+
+final Map<String, dynamic> body = {
+  'name': name,
+  'email': email,
+  'phone': phone,
+  'password': password,
+  'location': location.toJson(),
+  // Only add blood_type if selected and not empty
+  if (selectedBloodType?.isNotEmpty == true)
+    'blood_type': selectedBloodType,
+};

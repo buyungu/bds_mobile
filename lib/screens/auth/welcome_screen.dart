@@ -18,7 +18,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
-    Get.find<AuthController>().updateToken(); 
+    Get.find<AuthController>().updateToken();
     _checkToken();
   }
 
@@ -26,9 +26,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString(AppConstants.TOKEN);
     if (token != null && token.isNotEmpty) {
-      print('Token found: $token');
       Get.find<ApiClient>().updateHeader(token);
-      Get.offAll(() => HomeScreen());
+      Get.offAll(() => const HomeScreen());
     } else {
       Get.offAll(() => LoginScreen());
     }

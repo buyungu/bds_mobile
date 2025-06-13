@@ -31,6 +31,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final authController = Get.find<AuthController>();
   final locationController = Get.find<LocationController>();
 
+  final List<String> bloodTypes = [
+    'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
+  ];
+
+  String? _selectedBloodType;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -49,6 +55,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (location == null) {
       Get.snackbar('Error', 'Please select a location');
       return;
+    }else {
+      Get.snackbar('Location Selected', 'Selected location: ${location.address}');
     }
 
     final registerBody = RegisterBoby(
@@ -56,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email: _emailController.text.trim(),
       phone: _phoneController.text.trim(),
       password: _passwordController.text.trim(),
-      bloodType: _bloodTypeController.text.trim(),
+      bloodType: _selectedBloodType ?? '',
       location: location,
     );
 
@@ -64,6 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (result.isSuccess) {
       Get.offAllNamed(RouteHelper.getInitial());
     } else {
+      print('Register failed: ${result.message}');
       Get.snackbar("Registration Failed", result.message);
     }
   }
@@ -107,11 +116,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         validator: _requiredValidator,
                       ),
                       const SizedBox(height: 20),
-                      _buildTextFormField(
-                        controller: _bloodTypeController,
-                        label: "Blood Type",
-                        icon: Icons.bloodtype,
-                        validator: _requiredValidator,
+                      DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          labelText: 'Blood Type',
+                          border: OutlineInputBorder(),
+                        ),
+                        value: _selectedBloodType,
+                        items: bloodTypes.map((type) {
+                          return DropdownMenuItem(
+                            value: type,
+                            child: Text(type),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedBloodType = value;
+                          });
+                        },
+                        validator: (value) => value == null ? 'Please select a blood type' : null,
                       ),
                       const SizedBox(height: 20),
                       _buildTextFormField(

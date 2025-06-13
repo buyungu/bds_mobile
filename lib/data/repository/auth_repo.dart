@@ -62,7 +62,7 @@ class AuthRepo {
   }
 
   Future<String?> _saveDeviceToken() async {
-    String? _deviceToken = '@';  
+    String? _deviceToken = '';  
     if (!GetPlatform.isWeb) {
       try {
         FirebaseMessaging.instance.requestPermission();
