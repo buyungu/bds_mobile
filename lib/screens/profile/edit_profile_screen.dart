@@ -9,7 +9,6 @@ import 'package:bds/models/profile_model.dart';
 import 'package:bds/controllers/location_controller.dart';
 import 'package:bds/models/location.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:image_picker/image_picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({Key? key}) : super(key: key);
@@ -30,22 +29,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
   ];
 
-  File? _pickedImage;
-  final ImagePicker _picker = ImagePicker();
+  // File? _pickedImage;
+  // final ImagePicker _picker = ImagePicker();
 
-  Future<void> _pickImageFromGallery() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() => _pickedImage = File(pickedFile.path));
-    }
-  }
+  // Future<void> _pickImageFromGallery() async {
+  //   final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+  //   if (pickedFile != null) {
+  //     setState(() => _pickedImage = File(pickedFile.path));
+  //   }
+  // }
 
-  Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      setState(() => _pickedImage = File(pickedFile.path));
-    }
-  }
+  // Future<void> _pickImage() async {
+  //   final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+  //   if (pickedFile != null) {
+  //     setState(() => _pickedImage = File(pickedFile.path));
+  //   }
+  // }
 
 
 
@@ -78,7 +77,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         phone: _phoneController.text,
         bloodType: _selectedBloodType,
         location: _selectedLocation,
-        avatar: _pickedImage?.path ?? controller.profile?.user?.avatar,
+        // avatar: _pickedImage?.path ?? controller.profile?.user?.avatar,
       );
       await controller.editProfile(user);
       if (controller.isLoaded) {
@@ -89,12 +88,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: theme.colorScheme.onPrimary,
+        backgroundColor: AppColors.primaryRed,
+        foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: GetBuilder<ProfileController>(
@@ -136,18 +134,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ],
                             ),
                             child: GestureDetector(
-                              onTap: _pickImageFromGallery,
+                              onTap: () {},
                               child: CircleAvatar(
                                 radius: 50,
                                 backgroundColor: Colors.grey[300],
-                                backgroundImage: _pickedImage != null
-                                    ? FileImage(_pickedImage!) // Preview picked image
-                                    : (controller.profile!.user!.avatar != null &&
-                                            controller.profile!.user!.avatar!.isNotEmpty)
+                                backgroundImage: controller.profile!.user!.avatar != null &&
+                                            controller.profile!.user!.avatar!.isNotEmpty
                                         ? NetworkImage(AppConstants.BASE_URL + 'storage/' + controller.profile!.user!.avatar!)
                                         : null,
-                                child: (_pickedImage == null &&
-                                        (controller.profile!.user!.avatar == null || controller.profile!.user!.avatar!.isEmpty))
+                                child: (controller.profile!.user!.avatar == null || controller.profile!.user!.avatar!.isEmpty)
                                     ? Text(
                                         controller.profile!.user!.name?.isNotEmpty == true
                                             ? controller.profile!.user!.name![0].toUpperCase()
@@ -163,7 +158,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             bottom: 0,
                             right: 0,
                             child: GestureDetector(
-                              onTap: _pickImage,
+                              onTap: (){},
                               child: CircleAvatar(
                                 backgroundColor: AppColors.primaryRed,
                                 radius: 18,
@@ -276,8 +271,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            backgroundColor: theme.colorScheme.primary,
-                            foregroundColor: theme.colorScheme.onPrimary,
+                            backgroundColor: AppColors.primaryRed,
+                            foregroundColor: Colors.white,
                           ),
                           icon: const Icon(Icons.save),
                           label: const Text('Save Changes', style: TextStyle(fontSize: 16)),

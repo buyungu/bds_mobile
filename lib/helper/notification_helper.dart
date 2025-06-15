@@ -13,12 +13,19 @@ class NotificationHelper {
       initializationSettings, 
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
         try {
-          final String? payload = response.payload;
+          final payload = response.payload;
           if (payload != null && payload.isNotEmpty) {
-            // Navigate to specific screen using payload
-            Get.toNamed(payload);
-          } else {
-            Get.toNamed(RouteHelper.getNotifications());
+            final parts = payload.split('|');
+            final type = parts[0];
+            final id = parts[1];
+
+            if (type == 'donation') {
+              Get.toNamed(RouteHelper.getRespond(int.parse(id)));
+            } else if (type == 'event') {
+              Get.toNamed(RouteHelper.getEventDetails(int.parse(id)));
+            } else {
+              Get.toNamed(RouteHelper.getNotifications());
+            }
           }
         } catch (e) {
           if (kDebugMode) {
@@ -40,13 +47,20 @@ class NotificationHelper {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("Firebase message tapped: ${message.notification?.title}/${message.notification?.body}");
-      try {
+      print('📲 App opened via notification, data: ${message.data}');
+
+      final type = message.data['type'];
+      final id = message.data['blood_request_id'] ?? message.data['event_id'];
+
+      if (type == 'donation') {
+        Get.toNamed(RouteHelper.getRespond(id));
+      } else if (type == 'event') {
+        Get.toNamed(RouteHelper.getEventDetails(id));
+      } else {
         Get.toNamed(RouteHelper.getNotifications());
-      } catch (e) {
-        print("Error handling opened message: $e"); 
       }
-    }); 
+    });
+
   }
 
   static Future<void> showNotification(RemoteMessage msg, FlutterLocalNotificationsPlugin fln) async {
@@ -63,6 +77,7 @@ class NotificationHelper {
       android: androidNotificationDetails,
       iOS: const DarwinNotificationDetails(),
     );
-    await fln.show(0, msg.notification!.title!, msg.notification!.body!, platformChannelSpecifics);
+    print('🚀 Showing notification with payload: ${msg.data}');
+    await fln.show(0, msg.notification!.title!, msg.notification!.body!, platformChannelSpecifics,   payload: '${msg.data['type']}|${msg.data['blood_request_id'] ?? msg.data['event_id']}',);
   }
 }
