@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:bds/controllers/auth_controller.dart';
 import 'package:bds/controllers/profile_controller.dart';
 import 'package:bds/routes/route_helper.dart';
@@ -5,8 +7,6 @@ import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_constants.dart';
 import 'package:bds/widgets/custom_button.dart';
 import 'package:bds/widgets/hero_section.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -27,23 +27,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final color = AppColors.primaryRed;
+
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: GetBuilder<ProfileController>(
         builder: (controller) {
-          if (!controller.isLoaded || controller.profile == null || controller.profile!.user == null) {
+          if (!controller.isLoaded || controller.profile?.user == null) {
             return const Center(child: CircularProgressIndicator());
           }
+
           final user = controller.profile!.user!;
-          final imagePath = user.avatar != null && user.avatar!.isNotEmpty
-              ? AppConstants.BASE_URL + 'storage/' + user.avatar!
-              : AppConstants.BASE_URL + 'images/wana/chiefton.jpg';
+          final hasAvatar = user.avatar != null && user.avatar!.isNotEmpty;
+          final imagePath = hasAvatar ? AppConstants.BASE_URL + 'storage/' + user.avatar! : null;
 
           return CustomScrollView(
             slivers: [
-              HeroSection(title: "User Account", subtitle: "View and update profile information"),
+              HeroSection(
+                title: "User Account",
+                subtitle: "View and update profile information",
+              ),
               SliverPadding(
                 padding: const EdgeInsets.all(16),
                 sliver: SliverList(
@@ -51,41 +54,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Center(
                       child: Stack(
                         children: [
-                          ClipOval(
-                            child: Material(
-                              color: Colors.transparent,
-                              child: Ink.image(
-                                image: NetworkImage(imagePath),
-                                fit: BoxFit.cover,
-                                width: 128,
-                                height: 128,
-                                child: InkWell(onTap: () {}),
-                              ),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 500),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 10,
+                                  offset: Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.grey[300],
+                              backgroundImage: hasAvatar ? NetworkImage(imagePath!) : null,
+                              child: !hasAvatar
+                                  ? Text(
+                                      user.name?.isNotEmpty == true
+                                          ? user.name![0].toUpperCase()
+                                          : '',
+                                      style: const TextStyle(fontSize: 32, color: Colors.black),
+                                    )
+                                  : null,
                             ),
                           ),
                           Positioned(
                             bottom: 0,
-                            right: 4,
+                            right: 0,
                             child: GestureDetector(
-                              onTap: () {
-                                Navigator.pushNamed(context, '/edit-profile');
-                              },
-                              child: ClipOval(
-                                child: Container(
-                                  padding: const EdgeInsets.all(3),
-                                  color: Colors.white,
-                                  child: ClipOval(
-                                    child: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      color: color,
-                                      child: const Icon(
-                                        Icons.edit,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                              onTap: () => Navigator.pushNamed(context, '/edit-profile'),
+                              child: CircleAvatar(
+                                backgroundColor: AppColors.primaryRed,
+                                radius: 18,
+                                child: Icon(Icons.edit, size: 20, color: Colors.white),
                               ),
                             ),
                           ),
@@ -98,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       shadowColor: Colors.black.withOpacity(0.1),
                       child: Padding(
                         padding: const EdgeInsets.all(20.0),
@@ -110,19 +113,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: color,
+                                color: AppColors.primaryRed,
                               ),
                             ),
                             const SizedBox(height: 16),
-                            _profileInfoRow(Icons.person, "Full Name", user.name ?? '', color),
+                            _profileInfoRow(Icons.person, "Full Name", user.name ?? '', AppColors.primaryRed,),
                             _divider(),
-                            _profileInfoRow(Icons.email, "Email", user.email ?? '', color),
+                            _profileInfoRow(Icons.email, "Email", user.email ?? '', AppColors.primaryRed,),
                             _divider(),
-                            _profileInfoRow(Icons.phone, "Phone", user.phone ?? '', color),
+                            _profileInfoRow(Icons.phone, "Phone", user.phone ?? '', AppColors.primaryRed,),
                             _divider(),
-                            _profileInfoRow(Icons.bloodtype, "Blood Type", user.bloodType ?? '', color),
+                            _profileInfoRow(Icons.bloodtype, "Blood Type", user.bloodType ?? '', AppColors.primaryRed,),
                             _divider(),
-                            _profileInfoRow(Icons.location_on, "Location", user.location?.address ?? '', color),
+                            _profileInfoRow(Icons.location_on, "Location", user.location?.address ?? '', AppColors.primaryRed,),
                           ],
                         ),
                       ),
@@ -143,47 +146,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Get.find<AuthController>().clearUserData();
             Get.offNamed(RouteHelper.getInitial());
           },
+
         ),
       ),
     );
   }
 
   Widget _profileInfoRow(IconData icon, String label, String value, Color accent) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, color: accent, size: 24),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[600],
-                  )),
-              const SizedBox(height: 4),
-              Text(value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  )),
-            ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: accent, size: 22),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[600])),
+                const SizedBox(height: 4),
+                Text(value,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black)),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _divider() => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 12),
-    child: Divider(
-      thickness: 1,
-      height: 1,
-      color: Colors.grey.shade300,
-    ),
-  );
+  Widget _divider() => const Padding(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: Divider(thickness: 1, height: 1, color: Colors.grey),
+      );
 }
-

@@ -47,7 +47,7 @@ class AuthController extends GetxController implements GetxService{
   }
 
 
-  Future<ResponseModel> register(RegisterBoby registerBody) async {
+  Future<ResponseModel> register(RegisterBody registerBody) async {
     _isLoading=true;
     print('Registering with body: ${registerBody.toJson()}');
     Response response = await authRepo.register(registerBody);

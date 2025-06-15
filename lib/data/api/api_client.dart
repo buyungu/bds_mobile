@@ -58,8 +58,6 @@ class ApiClient extends GetConnect implements GetxService {
     }
   }
 
-
-
   Future<Response> deleteData(String uri) async {
     try {
       final response = await delete(uri, headers: _mainHeaders);

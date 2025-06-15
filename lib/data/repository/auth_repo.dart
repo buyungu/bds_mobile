@@ -15,9 +15,15 @@ class AuthRepo {
     required this.sharedPreferences,
   });
 
-  Future<Response> register(RegisterBoby registerBody) async {
-    return await apiClient.postData(AppConstants.REGISTER_URL, registerBody.toJson());
+  Future<Response> register(RegisterBody registerBody) async {
+    // Ensure location is serialized using the shared Location model's toJson()
+    final data = registerBody.toJson();
+    if (registerBody.location != null) {
+      data['location'] = registerBody.location!.toJson();
+    }
+    return await apiClient.postData(AppConstants.REGISTER_URL, data);
   }
+
   Future<Response> login(LoginBody loginBody) async {
     return await apiClient.postData(AppConstants.LOGIN_URL, loginBody.toJson());
   }

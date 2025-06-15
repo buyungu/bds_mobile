@@ -9,6 +9,7 @@ import 'package:bds/widgets/hero_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
+import 'package:bds/models/location.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -24,18 +25,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _bloodTypeController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _locationTextController = TextEditingController();
 
   bool _obscurePassword = true;
+  bool _obscureCPassword = true;
 
-  final authController = Get.find<AuthController>();
-  final locationController = Get.find<LocationController>();
+  String? _selectedBloodType;
+  Location? _selectedLocation;
 
   final List<String> bloodTypes = [
     'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
   ];
 
-  String? _selectedBloodType;
+  final authController = Get.find<AuthController>();
+  final locationController = Get.find<LocationController>();
 
   @override
   void dispose() {
@@ -43,7 +47,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
-    _bloodTypeController.dispose();
+    _confirmPasswordController.dispose();
+    _locationTextController.dispose();
     super.dispose();
   }
 
@@ -59,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       Get.snackbar('Location Selected', 'Selected location: ${location.address}');
     }
 
-    final registerBody = RegisterBoby(
+    final registerBody = RegisterBody(
       name: _nameController.text.trim(),
       email: _emailController.text.trim(),
       phone: _phoneController.text.trim(),
@@ -151,7 +156,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _obscurePassword = !_obscurePassword;
                             });
                           },
-                        ),
+                        ),  
                         validator: (value) {
                           if (value == null || value.length < 3) {
                             return 'Password must be at least 3 characters';
@@ -160,44 +165,72 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      TypeAheadField<Map<String, dynamic>>(
-                        suggestionsCallback: (pattern) async {
-                          return await Get.find<LocationController>().getPlaceSuggestions(pattern);
-                        },
-                        itemBuilder: (context, suggestion) {
-                          return ListTile(
-                            title: Text(suggestion['description']),
-                          );
-                        },
-                        onSelected: (suggestion) async {
-                          await Get.find<LocationController>().selectPlace(suggestion['place_id']);
-                        },
-                        builder: (context, controller, focusNode) {
-                          controller.text = Get.find<LocationController>().locationTextController.text;
-                          controller.selection = TextSelection.fromPosition(
-                            TextPosition(offset: controller.text.length),
-                          );
-
-                          return TextField(
-                            controller: controller,
-                            focusNode: focusNode,
-                            decoration: InputDecoration(
-                              labelText: 'Location',
-                               prefixIcon: Icon(Icons.location_on, color: AppColors.primaryRed),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: AppColors.primaryRed),
-                              ),
-                            ),
-                            onChanged: (value) {
-                              Get.find<LocationController>().locationTextController.text = value;
-                            },
-                          );
+                      _buildTextFormField(
+                        controller: _confirmPasswordController,
+                        label: "Confirm Password",
+                        icon: Icons.lock_outline,
+                         obscureText: _obscureCPassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureCPassword ? Icons.visibility : Icons.visibility_off,
+                            color: AppColors.primaryRed,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureCPassword = !_obscureCPassword;
+                            });
+                          },
+                        ),
+                        validator: (value) {
+                          if (value != _passwordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
                         },
                       ),
+                      const SizedBox(height: 20),
+                        TypeAheadField<Map<String, dynamic>>(
+                          builder: (context, controller, focusNode) {
+                            return TextFormField(
+                              controller: controller,
+                              focusNode: focusNode,
+                              decoration: InputDecoration(
+                                labelText: 'Location',
+                                prefixIcon: Icon(Icons.location_on, color: AppColors.primaryRed),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(color: AppColors.primaryRed),
+                                ),
+                              ),
+                            );
+                          },
+                          suggestionsCallback: (pattern) async {
+                            return await Get.find<LocationController>().getPlaceSuggestions(pattern);
+                          },
+                          itemBuilder: (context, suggestion) {
+                            return ListTile(
+                              title: Text(suggestion['description']),
+                            );
+                          },
+                          onSelected: (suggestion) async {
+                            await Get.find<LocationController>().selectPlace(suggestion['place_id']);
+                            setState(() {
+                              _selectedLocation = Get.find<LocationController>().selectedLocation.value;
+                              _locationTextController.text = _selectedLocation?.address ?? '';
+                            });
+                          },
+                        ),
+                        if (_selectedLocation != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              _selectedLocation!.address ?? '',
+                              style: TextStyle(color: Colors.grey[700]),
+                            ),
+                          ),
                       const SizedBox(height: 32),
                       GetBuilder<AuthController>(builder: (controller) {
                         return CustomButton(

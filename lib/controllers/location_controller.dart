@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:bds/models/register_boby_model.dart';
+import 'package:bds/models/location.dart';
 
 class LocationController extends GetxController {
   // Replace with your valid Google API key.

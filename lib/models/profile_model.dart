@@ -1,3 +1,5 @@
+import 'package:bds/models/location.dart';
+
 class ProfileModel {
   User? user;
 
@@ -77,47 +79,3 @@ class User {
   }
 }
 
-class Location {
-  double? lat;
-  double? lng;
-  String? address;
-  String? name;
-  String? url;
-  String? district;
-  String? region;
-  String? country;
-
-  Location(
-      {this.lat,
-      this.lng,
-      this.address,
-      this.name,
-      this.url,
-      this.district,
-      this.region,
-      this.country});
-
-  Location.fromJson(Map<String, dynamic> json) {
-    lat = double.tryParse(json['lat'].toString());
-    lng = double.tryParse(json['lng'].toString());
-    address = json['address'];
-    name = json['name'];
-    url = json['url'];
-    district = json['district'];
-    region = json['region'];
-    country = json['country'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['lat'] = this.lat;
-    data['lng'] = this.lng;
-    data['address'] = this.address;
-    data['name'] = this.name;
-    data['url'] = this.url;
-    data['district'] = this.district;
-    data['region'] = this.region;
-    data['country'] = this.country;
-    return data;
-  }
-}
