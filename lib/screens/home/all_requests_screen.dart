@@ -7,7 +7,7 @@ import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
 import 'package:get/get.dart';
 import '../../widgets/hero_section.dart';
-import '../../widgets/custom_button.dart';
+// import '../../widgets/custom_button.dart'; // This import seems unused and can be removed if not needed.
 import 'package:bds/controllers/request_controller.dart';
 
 class AllRequestsScreen extends StatefulWidget {
@@ -33,6 +33,8 @@ class _AllRequestsScreenState extends State<AllRequestsScreen> {
     if (diff.inSeconds < 60) return '${diff.inSeconds}s ago';
     if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
     if (diff.inHours < 24) return '${diff.inHours} hr ago';
+    // Using current date to be accurate when checking how many days ago it was.
+    // The current date is Tuesday, June 17, 2025.
     if (diff.inDays < 7) return '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
     return '${date.day}/${date.month}/${date.year}';
   }
@@ -41,48 +43,53 @@ class _AllRequestsScreenState extends State<AllRequestsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
-      body: CustomScrollView(
-        slivers: [
-          const HeroSection(
-            title: 'All Blood Requests',
-            subtitle: 'Find requests near you',
-          ),
-          GetBuilder<RequestController>(
-            builder: (requestController) {
-              if (!requestController.isLoaded) {
-                return SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              final requests = requestController.requestList;
-
-              if (requests.isEmpty) {
-                return SliverFillRemaining(
-                  child: Center(
-                    child: Text(
-                      'No requests found',
-                      style: AppTextStyles.body.copyWith(
-                        color: Colors.grey[600],
-                        fontStyle: FontStyle.italic,
+      body: GetBuilder<RequestController>(
+        builder: (requestController) {
+          return RefreshIndicator(
+            onRefresh: () async {
+              // This function is called when the user pulls down to refresh.
+              // It should typically trigger your data fetching logic.
+              await requestController.getRequestsList();
+            },
+            child: CustomScrollView(
+              physics:
+                  const AlwaysScrollableScrollPhysics(), // Essential for RefreshIndicator to work even with limited content
+              slivers: [
+                const HeroSection(
+                  title: 'All Blood Requests',
+                  subtitle: 'Find requests near you',
+                ),
+                if (!requestController.isLoaded)
+                  const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (requestController.requestList.isEmpty)
+                  SliverFillRemaining(
+                    child: Center(
+                      child: Text(
+                        'No requests found',
+                        style: AppTextStyles.body.copyWith(
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) =>
+                            _buildRequestCard(context, requestController.requestList[index], index),
+                        childCount: requestController.requestList.length,
                       ),
                     ),
                   ),
-                );
-              }
-
-              return SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _buildRequestCard(context, requests[index], index),
-                    childCount: requests.length,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -212,9 +219,12 @@ class _AllRequestsScreenState extends State<AllRequestsScreen> {
                     ),
                     onPressed: () {
                       final requestController = Get.find<RequestController>();
-                      if (requestController.isLoaded && requestController.requestList.isNotEmpty) {
-                        // Now you can safely navigate
+                      // It's good practice to ensure the ID is not null before navigating
+                      if (requestController.isLoaded && request.id != null) {
                         Get.toNamed(RouteHelper.getRespond(request.id!));
+                      } else {
+                        // Optionally, show a snackbar or log an error if ID is null or not loaded
+                        Get.snackbar("Error", "Request details not available.");
                       }
                     },
                     style: ElevatedButton.styleFrom(

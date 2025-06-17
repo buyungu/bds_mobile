@@ -29,7 +29,7 @@ class _FindDonorsState extends State<FindDonors> {
       body: GetBuilder<DonorController>(
         builder: (donorController) {
           if (!donorController.isLoaded) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           // Get unique blood types and locations from the donor list
@@ -53,122 +53,129 @@ class _FindDonorsState extends State<FindDonors> {
             return matchesBloodType && matchesLocation;
           }).toList();
 
-          return CustomScrollView(
-            slivers: [
-              const HeroSection(
-                  title: 'Find Donors',
-                  subtitle: 'Search for blood donors in your area'),
-              SliverPadding(
-                padding: EdgeInsets.all(16),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Filter by Blood Type",
-                          style: AppTextStyles.subheading,
-                        ),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: bloodTypes.map((type) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: ChoiceChip(
-                                  checkmarkColor: donorController.selectedBloodGroup == type
-                                      ? Colors.white
-                                      : Colors.black,
-                                  label: Text(type),
-                                  selected: donorController.selectedBloodGroup == type,
-                                  onSelected: (selected) {
-                                    donorController.setSelectedBloodGroup(
-                                        selected ? type : null);
-                                  },
-                                  selectedColor: AppColors.primaryRed,
-                                  labelStyle: AppTextStyles.body.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: donorController.selectedBloodGroup == type
+          return RefreshIndicator(
+            onRefresh: () async {
+              // This function is called when the user pulls down to refresh.
+              // It should typically trigger your data fetching logic.
+              await donorController.getDonorsList();
+            },
+            child: CustomScrollView(
+              slivers: [
+                const HeroSection(
+                    title: 'Find Donors',
+                    subtitle: 'Search for blood donors in your area'),
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Filter by Blood Type",
+                            style: AppTextStyles.subheading,
+                          ),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: bloodTypes.map((type) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: ChoiceChip(
+                                    checkmarkColor: donorController.selectedBloodGroup == type
                                         ? Colors.white
-                                        : AppColors.textDark,
+                                        : Colors.black,
+                                    label: Text(type),
+                                    selected: donorController.selectedBloodGroup == type,
+                                    onSelected: (selected) {
+                                      donorController.setSelectedBloodGroup(
+                                          selected ? type : null);
+                                    },
+                                    selectedColor: AppColors.primaryRed,
+                                    labelStyle: AppTextStyles.body.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: donorController.selectedBloodGroup == type
+                                          ? Colors.white
+                                          : AppColors.textDark,
+                                    ),
                                   ),
-                                ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            value: donorController.selectedLocation,
+                            decoration: InputDecoration(
+                              labelText: 'Select Location',
+                              prefixIcon: Icon(
+                                Icons.location_on,
+                                color: AppColors.primaryRed,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: AppColors.primaryRed),
+                              ),
+                            ),
+                            items: locations.map<DropdownMenuItem<String>>((location) {
+                              return DropdownMenuItem<String>(
+                                value: location,
+                                child: Text(location),
                               );
                             }).toList(),
+                            onChanged: (value) {
+                              donorController.setSelectedLocation(value);
+                            },
                           ),
-                        ),
-                        SizedBox(height: 16),
-                        DropdownButtonFormField<String>(
-                          value: donorController.selectedLocation,
-                          decoration: InputDecoration(
-                            labelText: 'Select Location',
-                            prefixIcon: Icon(
-                              Icons.location_on,
-                              color: AppColors.primaryRed,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.primaryRed),
-                            ),
-                          ),
-                          items: locations.map<DropdownMenuItem<String>>((location) {
-                            return DropdownMenuItem<String>(
-                              value: location,
-                              child: Text(location),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            donorController.setSelectedLocation(value);
-                          },
-                        ),
-                        SizedBox(height: 16),
-                        filteredDonors.isEmpty
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.search_off,
-                                      size: 50,
-                                      color: Colors.grey,
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'No donors found',
-                                      style: AppTextStyles.body.copyWith(
-                                        color: Colors.grey[600],
-                                        fontStyle: FontStyle.italic,
+                          const SizedBox(height: 16),
+                          filteredDonors.isEmpty
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.search_off,
+                                        size: 50,
+                                        color: Colors.grey,
                                       ),
-                                    ),
-                                    SizedBox(height: 16),
-                                    Text(
-                                      'Try adjusting your filters or location.',
-                                      style: AppTextStyles.body.copyWith(
-                                        color: Colors.grey[600],
-                                        fontStyle: FontStyle.italic,
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'No donors found',
+                                        style: AppTextStyles.body.copyWith(
+                                          color: Colors.grey[600],
+                                          fontStyle: FontStyle.italic,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                      SizedBox(height: 16),
+                                      Text(
+                                        'Try adjusting your filters or location.',
+                                        style: AppTextStyles.body.copyWith(
+                                          color: Colors.grey[600],
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: filteredDonors.length,
+                                  itemBuilder: (context, index) {
+                                    return _buildDonorCard(filteredDonors[index], context);
+                                  },
                                 ),
-                              )
-                            : ListView.builder(
-                                padding: EdgeInsets.zero,
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount: filteredDonors.length,
-                                itemBuilder: (context, index) {
-                                  return _buildDonorCard(filteredDonors[index], context);
-                                },
-                              ),
-                      ],
-                    ),
-                  ]),
+                        ],
+                      ),
+                    ]),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
@@ -182,12 +189,12 @@ Widget _buildDonorCard(DonorModel donor, BuildContext context) {
   return Card(
     elevation: 4,
     color: Colors.white,
-    margin: EdgeInsets.only(bottom: 16),
+    margin: const EdgeInsets.only(bottom: 16),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
     ),
     child: Padding(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -202,7 +209,7 @@ Widget _buildDonorCard(DonorModel donor, BuildContext context) {
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: isAvailable ? AppColors.primaryRed : Colors.grey[400],
                   borderRadius: BorderRadius.circular(12),
@@ -217,7 +224,7 @@ Widget _buildDonorCard(DonorModel donor, BuildContext context) {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 4,
@@ -232,15 +239,14 @@ Widget _buildDonorCard(DonorModel donor, BuildContext context) {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
-            'Last Donation: 30/1/2023',
+            'Last Donation: 30/1/2023', // Consider making this dynamic based on donor data
             style: AppTextStyles.body.copyWith(
               color: Colors.grey[600],
             ),
-            
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -264,13 +270,13 @@ Widget _buildDonorCard(DonorModel donor, BuildContext context) {
                                       'Contact Number: ',
                                       style: AppTextStyles.bodyBold,
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text(
                                       donor.phone ?? 'Not available',
                                       style: AppTextStyles.body.copyWith(
                                           color: AppColors.primaryRed),
                                     ),
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
                                     Text(
                                       'Do you want to call this donor?',
                                       style: AppTextStyles.body,
@@ -282,7 +288,7 @@ Widget _buildDonorCard(DonorModel donor, BuildContext context) {
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                     },
-                                    child: Text('Cancel'),
+                                    child: const Text('Cancel'),
                                   ),
                                   Container(
                                     decoration: BoxDecoration(
@@ -296,20 +302,24 @@ Widget _buildDonorCard(DonorModel donor, BuildContext context) {
                                         if (await canLaunchUrl(phoneUri)) {
                                           await launchUrl(phoneUri);
                                         } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content: Text(
-                                                    'Cannot make a phone call')),
-                                          );
+                                          if (context.mounted) { // Check if widget is mounted before showing SnackBar
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'Cannot make a phone call')),
+                                            );
+                                          }
                                         }
-                                        Navigator.of(context).pop();
+                                        if (context.mounted) { // Check if widget is mounted before popping
+                                          Navigator.of(context).pop();
+                                        }
                                       },
-                                      child: Text('Call'),
                                       style: TextButton.styleFrom(
                                         foregroundColor: Colors.white,
                                         textStyle: AppTextStyles.action,
                                       ),
+                                      child: const Text('Call'),
                                     ),
                                   ),
                                 ],
@@ -318,15 +328,15 @@ Widget _buildDonorCard(DonorModel donor, BuildContext context) {
                           );
                         }
                       : null,
-                  child: Text('Contact Donor'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryRed,
                     foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+                  child: const Text('Contact Donor'),
                 ),
               )
             ],
@@ -339,7 +349,7 @@ Widget _buildDonorCard(DonorModel donor, BuildContext context) {
 
 Widget _buildInfoChip({required IconData icon, required String text}) {
   return Container(
-    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     decoration: BoxDecoration(
       color: Colors.grey[200],
       borderRadius: BorderRadius.circular(10),
@@ -348,7 +358,7 @@ Widget _buildInfoChip({required IconData icon, required String text}) {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, color: AppColors.primaryRed, size: 16),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Flexible( // <-- This prevents overflow
           child: Text(
             text,

@@ -37,22 +37,31 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
           }
           final requests = controller.myRequestList;
 
-          return CustomScrollView(
-            slivers: [
-              HeroSection(
-                title: 'My Requests',
-                subtitle: 'Track and manage your donation requests',
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => _buildRequestCard(context, requests[index]),
-                    childCount: requests.length,
+          return RefreshIndicator(
+            onRefresh: () async {
+              // This function will be called when the user pulls down to refresh.
+              // It triggers the fetching of the latest requests.
+              await controller.getMyRequestsList();
+            },
+            child: CustomScrollView(
+              physics:
+                  const AlwaysScrollableScrollPhysics(), // Ensure scroll physics are always active for RefreshIndicator
+              slivers: [
+                const HeroSection(
+                  title: 'My Requests',
+                  subtitle: 'Track and manage your donation requests',
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _buildRequestCard(context, requests[index]),
+                      childCount: requests.length,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),

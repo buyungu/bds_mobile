@@ -22,7 +22,7 @@ class _EventsScreenState extends State<EventsScreen> {
   void initState() {
     super.initState();
     _eventController = Get.find<EventController>();
-    _eventController.getEventsList(); // ✅ Call API here
+    _eventController.getEventsList(); // Call API here
   }
 
   @override
@@ -39,39 +39,46 @@ class _EventsScreenState extends State<EventsScreen> {
             return const Center(child: Text("No events found."));
           }
 
-          return CustomScrollView(
-            slivers: [
-              const HeroSection(
-                title: 'Upcoming Events',
-                subtitle: 'Available events for blood donation drives',
-              ),
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Upcoming Events',
-                          style: AppTextStyles.subheading,
-                        ),
-                        const SizedBox(height: 24),
-                        ListView.builder(
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: eventController.eventList.length,
-                          itemBuilder: (context, index) {
-                            return _buildDonorCard(eventController.eventList[index], index);
-                          },
-                        ),
-                      ],
-                    ),
-                  ]),
+          return RefreshIndicator(
+            onRefresh: () async {
+              // This function is called when the user pulls down to refresh.
+              // It should typically trigger your data fetching logic.
+              await eventController.getEventsList();
+            },
+            child: CustomScrollView(
+              slivers: [
+                const HeroSection(
+                  title: 'Upcoming Events',
+                  subtitle: 'Available events for blood donation drives',
                 ),
-              ),
-            ],
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Upcoming Events',
+                            style: AppTextStyles.subheading,
+                          ),
+                          const SizedBox(height: 24),
+                          ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: eventController.eventList.length,
+                            itemBuilder: (context, index) {
+                              return _buildDonorCard(eventController.eventList[index], index);
+                            },
+                          ),
+                        ],
+                      ),
+                    ]),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

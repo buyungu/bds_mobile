@@ -14,227 +14,222 @@ class EventDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Get.find<EventController>().eventList.isNotEmpty && pageId < Get.find<EventController>().eventList.length) {
-      // Proceed to build the screen with your event
-      final event = Get.find<EventController>().eventList[pageId];
-      print("Page Id is "+pageId.toString());
-      print("Event Title is "+event.title.toString());
-      return Scaffold(
-        backgroundColor: Colors.white,
-        body: CustomScrollView(
-          slivers: [
-            const HeroSection(
-              title: 'Event Details',
-              subtitle: 'Enroll to Event to Donate blood',
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  // ✅ Already enrolled card
-                if (event.isEnrolled)
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.green[50],
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.green),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.check_circle, color: Colors.green),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            "You are already enrolled in this event.",
-                            style: TextStyle(color: Colors.green[800]),
-                          ),
-                        ),
-                      ],
-                    ),
+    // Use GetBuilder to react to changes in the EventController
+    return GetBuilder<EventController>(
+      builder: (controller) {
+        if (controller.eventList.isNotEmpty && pageId < controller.eventList.length) {
+          final event = controller.eventList[pageId];
+          print("Page Id is " + pageId.toString());
+          print("Event Title is " + event.title.toString());
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: RefreshIndicator(
+              onRefresh: () async {
+                await controller.getEventsList(); // Refresh the event list
+              },
+              child: CustomScrollView(
+                slivers: [
+                  const HeroSection(
+                    title: 'Event Details',
+                    subtitle: 'Enroll to Event to Donate blood',
                   ),
-                Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 10,
-                            offset: Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(event.title, style: AppTextStyles.subheading),
-                          const SizedBox(height: 16),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start, // <-- Add this line
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        // ✅ Already enrolled card
+                        if (event.isEnrolled)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.green[50],
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.green),
+                            ),
+                            child: Row(
                               children: [
-                                Text(
-                                  event.description,
-                                  style: AppTextStyles.body.copyWith(
-                                    fontSize: 14,
-                                    color: Colors.black87,
+                                Icon(Icons.check_circle, color: Colors.green),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    "You are already enrolled in this event.",
+                                    style: TextStyle(color: Colors.green[800]),
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-
-                                Text(
-                                  "Event Date: "+event.eventDate,
-                                  style: AppTextStyles.bodyBold,
-                                ),
-                                
-                                const SizedBox(height: 8),
-
-                                Text(
-                                  "Location: "+event.location.address,
-                                  style: AppTextStyles.bodyBold,
-                                ),
-                                
-                                SizedBox(height: 8),
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
+                              ],
+                            ),
+                          ),
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 10,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(event.title, style: AppTextStyles.subheading),
+                              const SizedBox(height: 16),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 6),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(10),
+                                    Text(
+                                      event.description,
+                                      style: AppTextStyles.body.copyWith(
+                                        fontSize: 14,
+                                        color: Colors.black87,
                                       ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      "Event Date: " + event.eventDate,
+                                      style: AppTextStyles.bodyBold,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      "Location: " + event.location.address,
+                                      style: AppTextStyles.bodyBold,
+                                    ),
+                                    SizedBox(height: 8),
+                                    SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
                                       child: Row(
-                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.phone, color: AppColors.primaryRed, size: 16),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            event.user.phone,
-                                            style: AppTextStyles.body,
-                                            overflow: TextOverflow.ellipsis,
+                                          Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[200],
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(Icons.phone, color: AppColors.primaryRed, size: 16),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  event.user.phone,
+                                                  style: AppTextStyles.body,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[200],
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(Icons.location_on, color: AppColors.primaryRed, size: 16),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  event.location.name,
+                                                  style: AppTextStyles.body,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    SizedBox(width: 8),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[200],
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.location_on, color: AppColors.primaryRed, size: 16),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            event.location.name,
-                                            style: AppTextStyles.body,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ),
+                                    SizedBox(height: 8),
+                                    // ✅ Conditional button
+                                    CustomButton(
+                                      label: event.isEnrolled ? "Unenroll from event" : "Enroll to event",
+                                      onPressed: () async {
+                                        final controller = Get.find<EventController>();
+
+                                        if (event.isEnrolled) {
+                                          await controller.unenrollFromEvent(event.enrollmentId);
+                                        } else {
+                                          await controller.enrollToEvent(event.id);
+                                        }
+
+                                        // No need for a delayed Get.back() here since the GetBuilder will rebuild
+                                        // and the enrolled status will update. If you still want to go back,
+                                        // consider a separate action or
+                                        // manage your navigation state more carefully.
+                                        // Get.back();
+                                      },
+                                      isPrimary: !event.isEnrolled,
                                     ),
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 8,),
-                              // ✅ Conditional button
-                      CustomButton(
-                        label: event.isEnrolled
-                            ? "Unenroll from event"
-                            : "Enroll to event",
-                        onPressed: () async {
-                          final controller = Get.find<EventController>();
-
-                          if (event.isEnrolled) {
-                            await controller.unenrollFromEvent(event.enrollmentId);
-                          } else {
-                            await controller.enrollToEvent(event.id);
-                          }
-
-                          await controller.getEventsList(); // refresh list
-
-                          // Delay navigation to allow snackbar to show
-                          Future.delayed(Duration(seconds: 3), () {
-                            Get.back();
-                          });
-                        },
-
-                        isPrimary: !event.isEnrolled,
-                        
-                      ),                            
-                      ],
-                            ),
+                            ],
+                          ),
                         ),
-                      ],
+                        const SizedBox(height: 24),
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 10,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Donation center", style: AppTextStyles.subheading),
+                              const SizedBox(height: 12),
+                              ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: Icon(Icons.local_hospital, color: AppColors.primaryRed, size: 32),
+                                title: Text(event.location.name, style: AppTextStyles.bodyBold),
+                                subtitle: Text(event.location.address, style: AppTextStyles.body),
+                              ),
+                              const SizedBox(height: 12),
+                              CustomButton(
+                                label: "View in Google Maps",
+                                onPressed: () async {
+                                  final Uri url = Uri.parse(event.location.url);
+                                  if (await canLaunchUrl(url)) {
+                                    await launchUrl(url);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Could not launch Google Maps')),
+                                    );
+                                  }
+                                },
+                                isPrimary: true,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 10,
-                          offset: Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Donation center", style: AppTextStyles.subheading),
-                        const SizedBox(height: 12),
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: Icon(Icons.local_hospital, color: AppColors.primaryRed, size: 32),
-                          title: Text(event.location.name, style: AppTextStyles.bodyBold),
-                          subtitle: Text(event.location.address, style: AppTextStyles.body),
-                        ),
-                        const SizedBox(height: 12),
-                        CustomButton(
-                          label: "View in Google Maps",
-                          onPressed: () async {
-                            final Uri url = Uri.parse(event.location.url);
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Could not launch Google Maps')),
-                              );
-                            }
-                          },
-                          isPrimary: true,
-                        ),
-                      ],
-                    ),
-                  ),
-              ]),
+                ],
               ),
             ),
-          ],
-        ),
-      );
-    } else {
-      // Show loading spinner or fallback message
-      return const Center(child: CircularProgressIndicator());
-      // Or, for a message:
-      // return const Center(child: Text('No events found.'));
-    }
+          );
+        } else {
+          // Show loading spinner or fallback message
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
+    );
   }
-
-  
-
 }
