@@ -120,8 +120,8 @@ class Location {
       this.country});
 
   Location.fromJson(Map<String, dynamic> json) {
-    lat = json['lat'];
-    lng = json['lng'];
+    lat = json['lat'] != null ? double.tryParse(json['lat'].toString()) : null;
+    lng = json['lng'] != null ? double.tryParse(json['lng'].toString()) : null;
     address = json['address'];
     name = json['name'];
     url = json['url'];

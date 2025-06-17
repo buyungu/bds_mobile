@@ -126,6 +126,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _profileInfoRow(Icons.bloodtype, "Blood Type", user.bloodType ?? '', AppColors.primaryRed,),
                             _divider(),
                             _profileInfoRow(Icons.location_on, "Location", user.location?.address ?? '', AppColors.primaryRed,),
+                            CustomButton(
+                              label: "Delete Account",
+                              onPressed: () {
+                                Get.find<ProfileController>().deleteUserAccount();
+                                Get.find<AuthController>().clearUserData();
+                                Get.offNamed(RouteHelper.getInitial());
+                              }
+                            ),  
                           ],
                         ),
                       ),
@@ -154,7 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _profileInfoRow(IconData icon, String label, String value, Color accent) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -178,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _divider() => const Padding(
-        padding: EdgeInsets.symmetric(vertical: 12),
+        padding: EdgeInsets.symmetric(vertical: 5),
         child: Divider(thickness: 1, height: 1, color: Colors.grey),
       );
 }

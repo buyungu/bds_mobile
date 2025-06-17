@@ -15,4 +15,8 @@ class ProfileRepo extends GetConnect implements GetxService {
   Future<Response> editProfile(User user) async {
     return  await apiClient.putData(AppConstants.EDIT_USER_URL, user.toJson());
   }
+
+    Future<Response> deleteUserAccount() async {
+    return await apiClient.deleteData(AppConstants.DELETE_USER_URL);
+  }
 }

@@ -1,6 +1,8 @@
+import 'package:bds/routes/route_helper.dart';
 import 'package:get/get.dart';
 import 'package:bds/data/repository/profile_repo.dart';
 import 'package:bds/models/profile_model.dart';
+import 'package:flutter/material.dart';
 
 class ProfileController extends GetxController {
   final ProfileRepo profileRepo;
@@ -43,4 +45,24 @@ class ProfileController extends GetxController {
     _isLoading = false;
     update();
   }
+
+   Future<void> deleteUserAccount() async {
+    _isLoading = true;
+    Response response = await profileRepo.deleteUserAccount();
+    if (response.statusCode == 200) {
+      print('Delete account response: ${response.body}');
+      Get.toNamed(RouteHelper.getInitial());
+      Get.snackbar('Success', 'Account deleted successfully',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } else {
+      print('Delete account failed: ${response.statusText}');
+    }
+  _isLoading = false;
+  update();
+}
+
+
 }

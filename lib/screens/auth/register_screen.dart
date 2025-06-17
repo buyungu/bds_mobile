@@ -124,7 +124,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       DropdownButtonFormField<String>(
                         decoration: InputDecoration(
                           labelText: 'Blood Type',
-                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.bloodtype, color: AppColors.primaryRed),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppColors.primaryRed),
+                          ),
                         ),
                         value: _selectedBloodType,
                         items: bloodTypes.map((type) {

@@ -24,7 +24,6 @@ class RespondToRequestScreen extends StatelessWidget {
       return Center(child: Text('Request not found'));
     }
 
-    print("Request Title is " + request.id.toString());
     // --- Example static data based on your model ---
     final confirmedDonors = request.donors?.length ?? 0;
     final requestQuantity = (request.quantity ?? 0) + confirmedDonors;

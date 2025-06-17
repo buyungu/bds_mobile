@@ -20,9 +20,11 @@ class NotificationHelper {
             final id = parts[1];
 
             if (type == 'donation') {
-              Get.toNamed(RouteHelper.getRespond(int.parse(id)));
+              // Get.toNamed(RouteHelper.getRespond(int.parse(id)));
+              Get.toNamed(RouteHelper.getViewRequests());
             } else if (type == 'event') {
-              Get.toNamed(RouteHelper.getEventDetails(int.parse(id)));
+              // Get.toNamed(RouteHelper.getEventDetails(int.parse(id)));
+              Get.toNamed(RouteHelper.getEvents());
             } else {
               Get.toNamed(RouteHelper.getNotifications());
             }
