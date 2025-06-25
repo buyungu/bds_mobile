@@ -86,6 +86,17 @@ Future<void> unenrollFromEvent(int enrollmentId) async {
       margin: EdgeInsets.all(10),
       borderRadius: 8,
     );
+  } else if (response.statusCode == 404) {
+    Get.snackbar(
+      "Error",
+      "You are already unenrolled in this event. Pull down to refresh the event details.",
+      backgroundColor: Colors.red,
+      snackPosition: SnackPosition.BOTTOM,
+      colorText: Colors.white,
+      duration: Duration(seconds: 10),
+      margin: EdgeInsets.all(10),
+      borderRadius: 8,
+    );
   } else {
     Get.snackbar(
       "Error",

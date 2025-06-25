@@ -69,7 +69,8 @@ class _EventsScreenState extends State<EventsScreen> {
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: eventController.eventList.length,
                             itemBuilder: (context, index) {
-                              return _buildDonorCard(eventController.eventList[index], index);
+                              // Pass the actual event model to the helper function
+                              return _buildEventCard(eventController.eventList[index]);
                             },
                           ),
                         ],
@@ -85,7 +86,8 @@ class _EventsScreenState extends State<EventsScreen> {
     );
   }
 
-  Widget _buildDonorCard(EventModel event, int index) {
+  // Changed parameter from 'index' to 'event' (EventModel)
+  Widget _buildEventCard(EventModel event) { // Renamed from _buildDonorCard for clarity
     return Card(
       elevation: 4,
       color: Colors.white,
@@ -131,7 +133,18 @@ class _EventsScreenState extends State<EventsScreen> {
                   child: CustomButton(
                     label: "View Details",
                     onPressed: () {
-                      Get.toNamed(RouteHelper.getEventDetails(index));
+                      // ✨ IMPORTANT CHANGE HERE: Pass event.id to the route helper
+                      if (event.id != null) {
+                        Get.toNamed(RouteHelper.getEventDetails(event.id!));
+                      } else {
+                        Get.snackbar(
+                          'Error',
+                          'Event ID is missing for this event.',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                        );
+                      }
                     },
                   ),
                 ),
