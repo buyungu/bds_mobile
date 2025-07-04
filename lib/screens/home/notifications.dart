@@ -2,142 +2,261 @@ import 'package:flutter/material.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
 import '../../widgets/hero_section.dart';
+import 'package:get/get.dart'; // Import GetX
+import 'package:bds/controllers/notification_controller.dart'; // Import your controller
+import 'package:bds/models/notification_model.dart'; // Import your model
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> notifications = [
-      {
-        'title': 'Urgent Blood Request',
-        'message': 'O+ blood needed at City Hospital.',
-        'time': '2 mins ago',
-        'type': 'emergency',
-        'important': true,
-      },
-      {
-        'title': 'Donation Reminder',
-        'message': 'You can donate again this week.',
-        'time': '1 day ago',
-        'type': 'reminder',
-        'important': false,
-      },
-      {
-        'title': 'Center Update',
-        'message': 'Red Cross Clinic now open 24/7.',
-        'time': '3 days ago',
-        'type': 'center_update',
-        'important': false,
-      },
-    ];
+    // Find the controller instance. Make sure it's put into GetX beforehand (e.g., in main.dart)
+    final NotificationController controller = Get.find<NotificationController>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          const HeroSection(
-            title: 'Notifications',
-            subtitle: 'Stay updated with your donation journey',
+      // Add a subtle gradient background
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFF8F8FF), Color(0xFFFDECEA)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => _buildNotificationCard(notifications[index]),
-                childCount: notifications.length,
+        ),
+        child: RefreshIndicator(
+          onRefresh: () => controller.getNotificationList(),
+          color: AppColors.primaryRed,
+          child: CustomScrollView(
+            slivers: [
+              const HeroSection(
+                title: 'Notifications',
+                subtitle: 'Stay updated with your donation journey',
               ),
-            ),
+              // Use GetBuilder to listen for updates from NotificationController
+              GetBuilder<NotificationController>(
+                builder: (controller) {
+                  if (!controller.isLoaded && controller.notificationList.isEmpty && controller.errorMessage == null) {
+                    // Initial loading state or when refreshing
+                    return const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  } else if (controller.errorMessage != null) {
+                    // Display error message
+                    return SliverFillRemaining(
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Error: ${controller.errorMessage}',
+                                  textAlign: TextAlign.center,
+                                  style: AppTextStyles.bodyBold.copyWith(color: AppColors.primaryRed)),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () => controller.getNotificationList(), // Call the method to retry
+                                child: const Text('Try Again'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  } else if (controller.notificationList.isEmpty) {
+                    // No notifications found after loading
+                    return const SliverFillRemaining(
+                      child: Center(
+                        child: Text('No notifications found.', style: AppTextStyles.body),
+                      ),
+                    );
+                  } else {
+                    // Display the list of notifications
+                    return SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final notification = controller.notificationList[index];
+                            return _buildNotificationCard(context, notification, controller);
+                          },
+                          childCount: controller.notificationList.length,
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildNotificationCard(Map<String, dynamic> notification) {
-    String type = notification['type'];
+  Widget _buildNotificationCard(BuildContext context, NotificationItem notification, NotificationController controller) {
+    String type = notification.type;
     String buttonText = '';
     VoidCallback? onPressed;
+
+    final bool isRead = notification.status?.toLowerCase() == 'read';
 
     switch (type) {
       case 'emergency':
         buttonText = 'Respond Now';
-        onPressed = () {
-          // Navigator.pushNamed(context, '/emergency');
+        onPressed = isRead ? null : () {
+          Get.snackbar('Action', 'Responding to emergency!');
+          controller.markAsRead(notification.id);
         };
         break;
       case 'reminder':
         buttonText = 'Book Donation';
-        onPressed = () {
-          // Navigator.pushNamed(context, '/donate');
+        onPressed = isRead ? null : () {
+          Get.snackbar('Action', 'Booking donation!');
+          controller.markAsRead(notification.id);
         };
         break;
       case 'center_update':
         buttonText = 'View Center';
-        onPressed = () {
-          // Navigator.pushNamed(context, '/centers');
+        onPressed = isRead ? null : () {
+          Get.snackbar('Action', 'Viewing center!');
+          controller.markAsRead(notification.id);
+        };
+        break;
+      case 'thank_you':
+        buttonText = 'Learn More';
+        onPressed = isRead ? null : () {
+          Get.snackbar('Action', 'Learning more!');
+          controller.markAsRead(notification.id);
         };
         break;
       default:
         buttonText = 'View Details';
-        onPressed = () {};
+        onPressed = isRead ? null : () {
+          Get.snackbar('Action', 'Viewing details!');
+          controller.markAsRead(notification.id);
+        };
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
+    final Color accentColor = notification.important
+        ? AppColors.primaryRed
+        : AppColors.primaryRed.withOpacity(0.75);
+
+    final Color cardBackgroundColor = isRead ? Colors.grey[100]! : Colors.white;
+    final Color textColor = isRead ? Colors.grey[600]! : Colors.black87;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeInOut,
+      margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: notification['important']
-            ? AppColors.primaryRed.withOpacity(0.05)
-            : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: cardBackgroundColor,
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 4),
+            color: Colors.black.withOpacity(0.09),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
+        border: Border.all(
+          color: accentColor,
+          width: notification.important ? 2 : 1,
+        ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            notification['important'] ? Icons.warning : Icons.notifications,
-            color: notification['important']
-                ? AppColors.primaryRed
-                : Colors.grey,
-            size: 28,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                Text(notification['title'], style: AppTextStyles.bodyBold),
-                const SizedBox(height: 4),
-                Text(notification['message'], style: AppTextStyles.body),
-                const SizedBox(height: 6),
-                Text(
-                  notification['time'],
-                  style: AppTextStyles.body.copyWith(color: Colors.grey),
+                Container(
+                  decoration: BoxDecoration(
+                    color: accentColor.withOpacity(0.13),
+                    shape: BoxShape.circle,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: Icon(
+                    notification.important ? Icons.warning_amber_rounded : Icons.notifications,
+                    color: accentColor,
+                    size: 32,
+                  ),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: onPressed,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryRed,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
+                if (!isRead)
+                  Positioned(
+                    right: 2,
+                    top: 2,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryRed,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
                     ),
                   ),
-                  child: Text(buttonText, style: AppTextStyles.whiteBody),
-                ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(width: 18),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    notification.title,
+                    style: AppTextStyles.bodyBold.copyWith(fontSize: 18, color: textColor),
+                  ),
+                  const SizedBox(height: 7),
+                  Text(
+                    notification.message,
+                    style: AppTextStyles.body.copyWith(fontSize: 15, color: textColor),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(Icons.access_time, size: 16, color: Colors.grey[500]),
+                      const SizedBox(width: 4),
+                      Text(
+                        notification.timeAgo,
+                        style: AppTextStyles.body.copyWith(color: Colors.grey[600], fontSize: 13),
+                      ),
+                      if (isRead)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
+                          child: Chip(
+                            label: const Text('Read', style: TextStyle(color: Colors.white, fontSize: 11)),
+                            backgroundColor: Colors.green[400],
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ElevatedButton(
+                      onPressed: onPressed,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isRead ? Colors.grey : accentColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 13),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(buttonText, style: AppTextStyles.whiteBody.copyWith(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

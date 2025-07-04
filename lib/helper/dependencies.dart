@@ -5,6 +5,7 @@ import 'package:bds/controllers/event_controller.dart';
 import 'package:bds/controllers/hospital_controller.dart';
 import 'package:bds/controllers/location_controller.dart';
 import 'package:bds/controllers/my_request_controller.dart';
+import 'package:bds/controllers/notification_controller.dart';
 import 'package:bds/controllers/profile_controller.dart';
 import 'package:bds/controllers/request_blood_controller.dart';
 import 'package:bds/controllers/request_controller.dart';
@@ -15,11 +16,14 @@ import 'package:bds/data/repository/donation_repo.dart';
 import 'package:bds/data/repository/event_repo.dart';
 import 'package:bds/data/repository/hospital_repo.dart';
 import 'package:bds/data/repository/my_request_repo.dart';
+import 'package:bds/data/repository/notification_repo.dart';
+import 'package:bds/data/repository/notification_repository.dart';
 import 'package:bds/data/repository/profile_repo.dart';
 import 'package:bds/data/repository/request_blood_repo.dart';
 import 'package:bds/data/repository/request_repo.dart';
 import 'package:bds/models/donors_model.dart';
 import 'package:bds/utils/app_constants.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,6 +45,9 @@ Future<void> init() async {
   Get.lazyPut(() => HospitalRepo(apiClient: Get.find()));
   Get.lazyPut(() => DonationRepo(apiClient: Get.find()));
   Get.lazyPut(() => RequestBloodRepo(apiClient: Get.find()));
+  Get.lazyPut(() => NotificationRepo(apiClient: Get.find()));
+
+
 
   // Controllers
   Get.lazyPut(() => AuthController(authRepo: Get.find()));
@@ -53,4 +60,5 @@ Future<void> init() async {
   Get.lazyPut(() => DonationController(donationRepo: Get.find()));
   Get.lazyPut(() => RequestBloodController(requestBloodRepo: Get.find()));
   Get.lazyPut(() => LocationController());
+  Get.lazyPut(() => NotificationController(notificationRepo: Get.find()));
 }

@@ -8,6 +8,7 @@ class AppConstants {
   static const String MY_REQUEST_URL = "api/my-requests";
   static const String HOSPITAL_URL = "api/hospitals";
   static const String EVENT_URL = "api/events";
+  static const String NOTIFICATION_URL = "api/notifications";
 
   static const String REGISTER_URL = "api/register";
   static const String LOGIN_URL = "api/login";
@@ -18,6 +19,7 @@ class AppConstants {
   static String donateUrl(int bloodRequestId) => "api/donate/$bloodRequestId";
   static String enrollUrl(int eventId) => "api/events/$eventId/enroll";
   static String unenrollUrl(int enrollmentId) => "api/events/unenroll/$enrollmentId";
+  static String markAsRead(int notificationId) => "api/notifications/$notificationId/read";
 
 
   static const String TOKEN = "dBtoken";

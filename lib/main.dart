@@ -4,6 +4,7 @@ import 'package:bds/controllers/event_controller.dart';
 import 'package:bds/controllers/hospital_controller.dart';
 import 'package:bds/controllers/location_controller.dart';
 import 'package:bds/controllers/my_request_controller.dart';
+import 'package:bds/controllers/notification_controller.dart';
 import 'package:bds/controllers/profile_controller.dart';
 import 'package:bds/controllers/request_blood_controller.dart';
 import 'package:bds/controllers/request_controller.dart';
@@ -72,6 +73,10 @@ Future<void> main() async {
     permanent: true,
   );
   Get.put(LocationController());
+  Get.put(
+    NotificationController(notificationRepo: Get.find()), // Pass the required notificationRepo
+    permanent: true,
+  );
 
 
   runApp(const BloodDonationApp());

@@ -227,6 +227,7 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
                 Get.snackbar(
                   'Success',
                   'Blood request submitted successfully.',
+                  snackPosition: SnackPosition.BOTTOM,
                   backgroundColor: Colors.green,
                   colorText: Colors.white,
                 );
@@ -242,6 +243,7 @@ class _CreateRequestScreenState extends State<CreateRequestScreen> {
                 Get.snackbar(
                   'Error',
                   'Failed to submit blood request.',
+                  snackPosition: SnackPosition.BOTTOM,
                   backgroundColor: Colors.red,
                   colorText: Colors.white,
                 );

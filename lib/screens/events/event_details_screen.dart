@@ -10,9 +10,11 @@ import 'package:get/get.dart'; // GetX import
 import 'package:bds/models/events_model.dart'; // Assuming EventModel is used
 
 class EventDetailsScreen extends StatefulWidget {
-  final int pageId;
+  // ✨ CHANGE 1: Renamed from pageId to eventId
+  final int eventId; // This is the actual event ID from the database
 
-  const EventDetailsScreen({Key? key, required this.pageId}) : super(key: key);
+  // ✨ CHANGE 2: Updated constructor parameter name
+  const EventDetailsScreen({Key? key, required this.eventId}) : super(key: key);
 
   @override
   State<EventDetailsScreen> createState() => _EventDetailsScreenState();
@@ -22,21 +24,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   late final EventController _eventController;
   EventModel? _event;
   bool _isLoading = true;
-  int? _actualEventId;
+  // ✨ CHANGE 3: Removed _actualEventId, as widget.eventId is now the actual ID
 
   @override
   void initState() {
     super.initState();
     _eventController = Get.find<EventController>();
 
-    // Determine the event ID from the initial pageId.
-    // This logic relies on _eventController.eventList being pre-populated before
-    // EventDetailsScreen is pushed. If you navigate using event.id directly,
-    // this part can be simplified greatly.
-    if (widget.pageId >= 0 && widget.pageId < _eventController.eventList.length) {
-      _actualEventId = _eventController.eventList[widget.pageId].id;
-    }
-
+    // ✨ CHANGE 4: Simplified initState - no more index-based lookup
     _loadEventData();
   }
 
@@ -55,33 +50,20 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       await _eventController.getEventsList();
 
       // After refreshing, find the specific event by its ID.
-      if (_actualEventId != null) {
-        setState(() {
-          _event = _eventController.eventList.firstWhereOrNull((e) => e.id == _actualEventId);
-        });
+      // ✨ CHANGE 5: Directly use widget.eventId to find the event
+      setState(() {
+        _event = _eventController.eventList.firstWhereOrNull((e) => e.id == widget.eventId);
+      });
 
-        if (_event == null) {
-          // Event not found after refresh (e.g., deleted from backend)
-          Get.snackbar(
-            'Info',
-            'The event you were viewing is no longer available.',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.blueAccent,
-            colorText: Colors.white,
-          );
-        }
-      } else {
-        // This case indicates an initial problem getting the event ID.
+      if (_event == null) {
+        // Event not found after refresh (e.g., deleted from backend or invalid ID passed)
         Get.snackbar(
-          'Error',
-          'Event ID could not be determined.',
+          'Info',
+          'The event you were viewing is no longer available or the ID is invalid.',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.orange,
+          backgroundColor: Colors.blueAccent,
           colorText: Colors.white,
         );
-        setState(() {
-          _event = null; // Clear event if ID is invalid
-        });
       }
     } catch (e) {
       // Handle any errors during data loading (e.g., network issues)
@@ -235,7 +217,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                "Event Date: ${event.eventDate ?? 'N/A'}",
+                                "Event Date: ${event.eventDate ?? 'N/A'}", // ✨ MINOR IMPROVEMENT: Null check for eventDate
                                 style: AppTextStyles.bodyBold,
                               ),
                               const SizedBox(height: 8),
@@ -295,7 +277,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               CustomButton(
                                 label: event.isEnrolled == true ? "Unenroll from event" : "Enroll to event",
                                 onPressed: () async {
-                                  
 
                                   try {
                                     if (event.isEnrolled == true) {
@@ -364,7 +345,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                               final Uri url = Uri.parse(mapsUrl);
                               try {
                                 if (await canLaunchUrl(url)) {
-                                  await launchUrl(url);
+                                  await launchUrl(url, mode: LaunchMode.externalApplication); // ✨ MINOR IMPROVEMENT: Added launch mode
                                 } else {
                                   // Use Get.snackbar for consistency with GetX
                                   Get.snackbar(

@@ -16,6 +16,7 @@ import 'package:bds/screens/profile/edit_profile_screen.dart';
 import 'package:bds/screens/events/events_screen.dart';
 import 'package:bds/screens/events/event_details_screen.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart'; // Import Material for SnackBar and Center
 
 class RouteHelper {
   static const String initial = "/";
@@ -52,11 +53,12 @@ class RouteHelper {
   static String getRespond(int pageId) => '$respond?pageId=$pageId';
   static String getDonationProgress(int requestId) => '$donationProgress?id=$requestId';
   static String getEvents() => '$events';
-  static String getEventDetails(int pageId) => '$eventDetails?pageId=$pageId';
+  // It's recommended to change 'pageId' to 'eventId' here for consistency with EventDetailsScreen
+  static String getEventDetails(int eventId) => '$eventDetails?eventId=$eventId';
 
   static List<GetPage> routes = [
     GetPage(name: initial, page: () => WelcomeScreen()),
-    GetPage(name: home, page: () =>  HomeScreen()),
+    GetPage(name: home, page: () => HomeScreen()),
     GetPage(name: login, page: () => LoginScreen()),
     GetPage(name: register, page: () => RegisterScreen()),
     GetPage(name: profile, page: () => ProfileScreen()),
@@ -71,21 +73,53 @@ class RouteHelper {
     GetPage(
       name: respond,
       page: () {
+        // This 'pageId' parameter in 'respond' route still exists as per your original code.
+        // If 'RespondToRequestScreen' expects a 'requestId', you should change the parameter name in the URL and the screen.
         var pageId = Get.parameters['pageId'];
-        return RespondToRequestScreen();
+        return RespondToRequestScreen(); // Assuming RespondToRequestScreen handles null pageId or fetches data differently
       },
       transition: Transition.fadeIn,
     ),
     GetPage(name: donationProgress, page: () => DonationProgressScreen()),
     GetPage(name: events, page: () => EventsScreen()),
 
+    // FIX START: EventDetails GetPage definition
     GetPage(
       name: eventDetails,
       page: () {
-        var pageId = Get.parameters['pageId'];
-        return EventDetailsScreen(pageId: int.parse(pageId!));
+        // Correctly retrieve 'eventId' from Get.parameters, as specified by getEventDetails.
+        var eventIdString = Get.parameters['eventId'];
+
+        // Handle the case where 'eventId' might be missing or not a valid integer.
+        if (eventIdString != null) {
+          final int? eventId = int.tryParse(eventIdString);
+          if (eventId != null) {
+            return EventDetailsScreen(eventId: eventId);
+          } else {
+            // Handle invalid eventId format
+            Get.snackbar(
+              'Error',
+              'Invalid Event ID format.',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+            );
+            return const Center(child: Text('Error: Invalid Event ID.')); // Fallback
+          }
+        } else {
+          // Handle missing eventId
+          Get.snackbar(
+            'Error',
+            'Event ID is missing!',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          return const Center(child: Text('Error: Event ID not provided.')); // Fallback
+        }
       },
       transition: Transition.fadeIn,
     ),
+    // FIX END: EventDetails GetPage definition
   ];
 }
