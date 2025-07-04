@@ -1,3 +1,4 @@
+import 'package:bds/routes/route_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:bds/utils/app_colors.dart';
 import 'package:bds/utils/app_text_styles.dart';
@@ -102,31 +103,24 @@ class NotificationsScreen extends StatelessWidget {
     final bool isRead = notification.status?.toLowerCase() == 'read';
 
     switch (type) {
-      case 'emergency':
+      case 'donation':
         buttonText = 'Respond Now';
         onPressed = isRead ? null : () {
           Get.snackbar('Action', 'Responding to emergency!');
+          Get.toNamed(RouteHelper.getRespond(notification.bloodRequestId!));
           controller.markAsRead(notification.id);
         };
+ 
         break;
-      case 'reminder':
-        buttonText = 'Book Donation';
+      case 'event':
+        buttonText = 'vew Event';
         onPressed = isRead ? null : () {
-          Get.snackbar('Action', 'Booking donation!');
-          controller.markAsRead(notification.id);
-        };
-        break;
-      case 'center_update':
-        buttonText = 'View Center';
-        onPressed = isRead ? null : () {
-          Get.snackbar('Action', 'Viewing center!');
-          controller.markAsRead(notification.id);
-        };
-        break;
-      case 'thank_you':
-        buttonText = 'Learn More';
-        onPressed = isRead ? null : () {
-          Get.snackbar('Action', 'Learning more!');
+          Get.snackbar('Action', 'Viewing event details!');
+          if (notification.eventId != null) {
+            Get.toNamed(RouteHelper.getEventDetails(notification.eventId!));
+          } else {
+            Get.snackbar('Error', 'Event ID is missing.');
+          }
           controller.markAsRead(notification.id);
         };
         break;
