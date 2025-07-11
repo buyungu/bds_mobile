@@ -18,6 +18,11 @@ class AllRequestsScreen extends StatefulWidget {
 }
 
 class _AllRequestsScreenState extends State<AllRequestsScreen> {
+  final List<String> bloodTypes = [
+    'All', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
+  ];
+  String selectedBloodType = 'All';
+
   @override
   void initState() {
     super.initState();
@@ -45,25 +50,58 @@ class _AllRequestsScreenState extends State<AllRequestsScreen> {
       backgroundColor: const Color(0xFFF8FAFF),
       body: GetBuilder<RequestController>(
         builder: (requestController) {
+          // Move filtering logic here
+          final filteredRequests = selectedBloodType == 'All'
+              ? requestController.requestList
+              : requestController.requestList
+                  .where((req) => req.bloodType == selectedBloodType)
+                  .toList();
+
           return RefreshIndicator(
             onRefresh: () async {
-              // This function is called when the user pulls down to refresh.
-              // It should typically trigger your data fetching logic.
               await requestController.getRequestsList();
             },
             child: CustomScrollView(
-              physics:
-                  const AlwaysScrollableScrollPhysics(), // Essential for RefreshIndicator to work even with limited content
+              physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
                 const HeroSection(
                   title: 'All Blood Requests',
                   subtitle: 'Find requests near you',
                 ),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 48,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      itemCount: bloodTypes.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      itemBuilder: (context, index) {
+                        final type = bloodTypes[index];
+                        final isSelected = selectedBloodType == type;
+                        return ChoiceChip(
+                          label: Text(type, style: TextStyle(
+                            color: isSelected ? Colors.white : AppColors.primaryRed,
+                            fontWeight: FontWeight.bold,
+                          )),
+                          selected: isSelected,
+                          selectedColor: AppColors.primaryRed,
+                          backgroundColor: Colors.white,
+                          onSelected: (_) {
+                            setState(() {
+                              selectedBloodType = type;
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
                 if (!requestController.isLoaded)
                   const SliverFillRemaining(
                     child: Center(child: CircularProgressIndicator()),
                   )
-                else if (requestController.requestList.isEmpty)
+                else if (filteredRequests.isEmpty)
                   SliverFillRemaining(
                     child: Center(
                       child: Text(
@@ -80,9 +118,10 @@ class _AllRequestsScreenState extends State<AllRequestsScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) =>
-                            _buildRequestCard(context, requestController.requestList[index], index),
-                        childCount: requestController.requestList.length,
+                        (context, index) {
+                          return _buildRequestCard(context, filteredRequests[index], index);
+                        },
+                        childCount: filteredRequests.length,
                       ),
                     ),
                   ),

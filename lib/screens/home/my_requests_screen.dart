@@ -26,6 +26,11 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
     myRequestController.getMyRequestsList();
   }
 
+  final List<String> bloodTypes = [
+    'All', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
+  ];
+  String selectedBloodType = 'All';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,6 +41,10 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           final requests = controller.myRequestList;
+
+          final filteredRequests = selectedBloodType == 'All'
+              ? requests
+              : requests.where((req) => req.bloodType == selectedBloodType).toList();
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -51,12 +60,44 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
                   title: 'My Requests',
                   subtitle: 'Track and manage your donation requests',
                 ),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 48,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      itemCount: bloodTypes.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      itemBuilder: (context, index) {
+                        final type = bloodTypes[index];
+                        final isSelected = selectedBloodType == type;
+                        return ChoiceChip(
+                          label: Text(
+                            type,
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : AppColors.primaryRed,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          selected: isSelected,
+                          selectedColor: AppColors.primaryRed,
+                          backgroundColor: Colors.white,
+                          onSelected: (_) {
+                            setState(() {
+                              selectedBloodType = type;
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
                 SliverPadding(
                   padding: const EdgeInsets.all(16),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) => _buildRequestCard(context, requests[index]),
-                      childCount: requests.length,
+                      (context, index) => _buildRequestCard(context, filteredRequests[index]),
+                      childCount: filteredRequests.length,
                     ),
                   ),
                 ),
