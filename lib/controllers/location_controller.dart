@@ -6,7 +6,7 @@ import 'package:bds/models/location.dart';
 
 class LocationController extends GetxController {
   // Replace with your valid Google API key.
-  final String apiKey = 'AIzaSyD75dUgw57R6h0jaxGcmwOamWBOinq2FXE';
+  final String apiKey = 'Your google API key';
 
   // Reactive variable holding the selected Location.
   Rx<Location?> selectedLocation = Rx<Location?>(null);
